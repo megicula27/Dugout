@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
   avatar: String,
   games: [String],
   teams: [String],
-  active: { type: Boolean, default: true },
+  activeStatus: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
 });
 

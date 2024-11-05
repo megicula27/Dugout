@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import User from "@/models/users/User"; // Ensure this is your Mongoose user model
 import dbConnect from "@/lib/database/mongo";
+import { getToken } from "next-auth/jwt";
 
 const options = {
   providers: [
@@ -11,7 +12,6 @@ const options = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      redirectUri: "http://localhost:3000/",
     }),
     // Credentials Provider for email/password
     CredentialsProvider({
@@ -53,6 +53,24 @@ const options = {
   ],
 
   callbacks: {
+    async signIn({ user, account }) {
+      await dbConnect();
+      if (account.provider === "google") {
+        // Check if user exists in MongoDB
+        const existingUser = await User.findOne({ email: user.email });
+        if (!existingUser) {
+          // Create a new MongoDB user document with default fields
+          await User.create({
+            email: user.email,
+            username: user.name,
+            activeStatus: true, // Set default or calculated values
+            teams: [], // Default teams array
+            games: [], // Default games array
+          });
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       // Persist additional user information in token
       if (user) {
@@ -60,6 +78,7 @@ const options = {
         token.name = user.name;
         token.email = user.email;
       }
+
       return token;
     },
     async session({ session, token }) {
@@ -69,15 +88,50 @@ const options = {
       session.user.email = token.email;
       return session;
     },
-    pages: {
-      signIn: "/auth",
-      newUser: "/",
-    },
-    secret: process.env.NEXTAUTH_SECRET,
-    session: {
-      strategy: "jwt", // Using JWT for session storage
+    async signOut({ token }) {
+      // This callback runs when the user signs out
+
+      if (token) {
+        await dbConnect();
+        const userFromDB = await User.findOne({ email: token.email });
+
+        if (userFromDB) {
+          userFromDB.activeStatus = false;
+          await userFromDB.save();
+        }
+      }
     },
   },
+  pages: {
+    signIn: "/auth",
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: "jwt", // Using JWT for session storage
+    maxAge: 2 * 24 * 60 * 60,
+  },
+  // events: {
+  //   async signOut({ token }) {
+  //     await dbConnect(); // Ensure database connection is established
+  //     console.log("helooooo");
+
+  //     // Retrieve the token manually
+  //     const userToken = await getToken({
+  //       req: { headers: { authorization: `Bearer ${token}` } },
+  //     });
+
+  //     // If we have a valid token, update the active status in the database
+  //     if (userToken) {
+  //       const userFromDB = await User.findOne({ email: userToken.email });
+  //       console.log(userFromDB);
+
+  //       if (userFromDB) {
+  //         userFromDB.activeStatus = false;
+  //         await userFromDB.save();
+  //       }
+  //     }
+  //   },
+  // },
 };
 
 export default NextAuth(options);

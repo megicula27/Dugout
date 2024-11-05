@@ -28,6 +28,9 @@ export async function POST(request) {
       username,
       email,
       password: hashedPassword,
+      activeStatus: true, // Set default or calculated values
+      teams: [], // Default teams array
+      games: [],
     });
 
     await user.save();
