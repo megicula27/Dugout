@@ -4,7 +4,6 @@ import "./globals.css";
 import AuthProvider from "@/provider/AuthProvider";
 import ChangeStatusOnUnload from "@/provider/ChangeStatusOnUnload";
 import ChangeStatusOnLoad from "@/provider/ChangeStatusOnLoad";
-
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",

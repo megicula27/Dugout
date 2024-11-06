@@ -88,19 +88,20 @@ const options = {
       session.user.email = token.email;
       return session;
     },
-    async signOut({ token }) {
-      // This callback runs when the user signs out
+    // async signOut({ token }) {
+    //   // This callback runs when the user signs out
+    //   console.log("i was called");
 
-      if (token) {
-        await dbConnect();
-        const userFromDB = await User.findOne({ email: token.email });
+    //   if (token) {
+    //     await dbConnect();
+    //     const userFromDB = await User.findOne({ email: token.email });
 
-        if (userFromDB) {
-          userFromDB.activeStatus = false;
-          await userFromDB.save();
-        }
-      }
-    },
+    //     if (userFromDB) {
+    //       userFromDB.activeStatus = false;
+    //       await userFromDB.save();
+    //     }
+    //   }
+    // },
   },
   pages: {
     signIn: "/auth",
@@ -110,28 +111,25 @@ const options = {
     strategy: "jwt", // Using JWT for session storage
     maxAge: 2 * 24 * 60 * 60,
   },
-  // events: {
-  //   async signOut({ token }) {
-  //     await dbConnect(); // Ensure database connection is established
-  //     console.log("helooooo");
+  events: {
+    signOut: async ({ token }) => {
+      await dbConnect(); // Ensure database connection is established
 
-  //     // Retrieve the token manually
-  //     const userToken = await getToken({
-  //       req: { headers: { authorization: `Bearer ${token}` } },
-  //     });
+      // Retrieve the token manually
 
-  //     // If we have a valid token, update the active status in the database
-  //     if (userToken) {
-  //       const userFromDB = await User.findOne({ email: userToken.email });
-  //       console.log(userFromDB);
+      // If we have a valid token, update the active status in the database
+      if (token) {
+        const userFromDB = await User.findOne({ email: token.email }).select(
+          "email activeStatus"
+        );
 
-  //       if (userFromDB) {
-  //         userFromDB.activeStatus = false;
-  //         await userFromDB.save();
-  //       }
-  //     }
-  //   },
-  // },
+        if (userFromDB) {
+          userFromDB.activeStatus = false;
+          await userFromDB.save();
+        }
+      }
+    },
+  },
 };
 
 export default NextAuth(options);

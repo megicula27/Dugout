@@ -17,7 +17,9 @@ export const POST = async (req) => {
     await dbConnect();
 
     // Update the user's active status
-    const userFromDB = await User.findOne({ email: token.email });
+    const userFromDB = await User.findOne({ email: token.email }).select(
+      "email activeStatus"
+    );
     if (userFromDB) {
       userFromDB.activeStatus = false;
       await userFromDB.save();
