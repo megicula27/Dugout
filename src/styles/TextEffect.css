@@ -1,0 +1,59 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: #0d0d0d;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Changed from center to flex-start */
+  align-items: flex-start;
+  height: 100vh; /* Changed from 200vh to 100vh */
+  margin-top: 2rem; /* Added to provide some space from the top */
+}
+
+.text {
+  font-size: 7vw; /* Reduced font size by 30% */
+  letter-spacing: -0.01em;
+  line-height: 100%;
+  margin: 0;
+  font-weight: 900; /* Increased font weight */
+  width: 100%;
+  color: rgba(182, 182, 182, 0.2);
+  background: linear-gradient(to right, #b6b6b6, #b6b6b6) no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 0%;
+  transition: background-size cubic-bezier(0.1, 0.5, 0.5, 1) 0.5s;
+  border-bottom: 1px solid #2f2b28;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+}
+
+span {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #4246ce;
+  color: #0d0d0d;
+  clip-path: polygon(0 50%, 100% 50%, 100% 50%, 0 50%);
+  transform-origin: center;
+  transition: all cubic-bezier(0.1, 0.5, 0.5, 1) 0.4s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.text:hover > span {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
