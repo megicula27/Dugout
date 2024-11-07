@@ -31,7 +31,7 @@ const Hero = () => {
               alt="Gaming Setup"
               className="aspect-video overflow-hidden rounded-xl object-cover"
               height="300"
-              src="/placeholder.svg"
+              src="/thumbnail.jpg"
               width="600"
             />
           </div>

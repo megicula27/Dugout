@@ -1,40 +1,42 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Gamepad2 } from "lucide-react";
 import { useState } from "react";
 
-const tournaments = [
-  {
-    id: 1,
-    name: "Valorant Championship",
-    prize: "$10,000",
-    date: "Dec 15, 2024",
-  },
-  {
-    id: 2,
-    name: "League of Legends Cup",
-    prize: "$15,000",
-    date: "Dec 20, 2024",
-  },
-  {
-    id: 3,
-    name: "Apex Legends Battle",
-    prize: "$8,000",
-    date: "Dec 25, 2024",
-  },
-];
-const ActiveTournaments = () => {
+export default function ActiveTournaments() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  const tournaments = [
+    {
+      id: 1,
+      name: "Valorant Championship",
+      prize: "$10,000",
+      date: "Dec 15, 2024",
+    },
+    {
+      id: 2,
+      name: "League of Legends Cup",
+      prize: "$15,000",
+      date: "Dec 20, 2024",
+    },
+    {
+      id: 3,
+      name: "Apex Legends Battle",
+      prize: "$8,000",
+      date: "Dec 25, 2024",
+    },
+  ];
+
   return (
-    <section className="py-12 bg-gray-100">
-      <div className="container px-4 md:px-6">
-        <h2 className="text-3xl font-bold text-center mb-12">
-          Active Tournaments
-        </h2>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 className="text-3xl font-bold text-center mb-12">
+        Active Tournaments
+      </h2>
+      <div className="max-w-4xl mx-auto">
         <div className="relative">
-          <div className="flex overflow-hidden">
+          <div className="overflow-hidden">
             <div
               className="flex transition-transform duration-500 ease-in-out"
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -53,7 +55,7 @@ const ActiveTournaments = () => {
                       <p className="text-sm text-gray-500">
                         Date: {tournament.date}
                       </p>
-                      <Button className="mt-4 w-full">Join Tournament</Button>
+                      <Button className="w-full mt-4">Join Tournament</Button>
                     </CardContent>
                   </Card>
                 </div>
@@ -75,8 +77,6 @@ const ActiveTournaments = () => {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
-};
-
-export default ActiveTournaments;
+}

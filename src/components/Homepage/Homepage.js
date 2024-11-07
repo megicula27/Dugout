@@ -1,25 +1,55 @@
 "use client";
-import Hero from "@/components/import/import";
-import GameSection from "@/components/import/import";
-import Features from "@/components/import/import";
-import Team from "@/components/import/import";
-import Footer from "@/components/import/import";
-import ActiveTournaments from "@/components/import/import";
-export default function Homepage() {
+import {
+  Hero,
+  GameSection,
+  Features,
+  Team,
+  Footer,
+  ActiveTournaments,
+} from "@/components/import/import";
+
+export default function Component() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <Hero />
+      <section className="bg-black">
+        <div className="container mx-auto px-4 md:px-6">
+          <Hero />
+        </div>
+      </section>
+
       {/* Games Section */}
-      <GameSection />
+      <section className="bg-gray-200 py-12 z-10">
+        <div className="container mx-auto px-4 md:px-6">
+          <GameSection />
+        </div>
+      </section>
+
       {/* Features Section */}
-      <Features />
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4 md:px-6">
+          <Features />
+        </div>
+      </section>
+
       {/* Active Tournaments Section */}
-      <ActiveTournaments />
+      <section className="bg-gray-200 py-12">
+        <div className="container mx-auto px-4 md:px-6">
+          <ActiveTournaments />
+        </div>
+      </section>
+
       {/* Team Section */}
-      <Team />
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4 md:px-6">
+          <Team />
+        </div>
+      </section>
+
       {/* Footer */}
-      <Footer />
+      <section className="bg-gray-900 ">
+        <Footer />
+      </section>
     </div>
   );
 }
