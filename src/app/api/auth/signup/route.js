@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import User from "@/models/users/User";
 import dbConnect from "@/lib/database/mongo";
 import { NextResponse } from "next/server";
-
+import { generateUserId } from "@/utils/idGenerator";
 export async function POST(request) {
   try {
     await dbConnect();
@@ -22,9 +22,11 @@ export async function POST(request) {
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
+    const uid = generateUserId();
 
     // Create user
     const user = new User({
+      uid,
       username,
       email,
       password: hashedPassword,

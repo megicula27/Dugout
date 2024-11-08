@@ -40,6 +40,8 @@ const SignUpForm = () => {
         } else {
           router.push("/");
         }
+      } else if (res.status === 400) {
+        setError(res.data.message);
       } else {
         setError("Failed to create account. Please try again.");
       }

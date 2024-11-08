@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import User from "@/models/users/User"; // Ensure this is your Mongoose user model
 import dbConnect from "@/lib/database/mongo";
-import { getToken } from "next-auth/jwt";
+import { generateUserId } from "@/utils/idGenerator";
 
 const options = {
   providers: [
@@ -60,7 +60,11 @@ const options = {
         const existingUser = await User.findOne({ email: user.email });
         if (!existingUser) {
           // Create a new MongoDB user document with default fields
+
+          const uid = generateUserId();
+
           await User.create({
+            uid,
             email: user.email,
             username: user.name,
             activeStatus: true, // Set default or calculated values
