@@ -20,28 +20,28 @@ export default function Component() {
 
       {/* Games Section */}
       <section className="bg-gray-200 py-12 z-10">
-        <div className="container mx-auto px-4 md:px-6">
+        <div className="bg-white container mx-auto px-4 py-10 md:px-6">
           <GameSection />
         </div>
       </section>
 
       {/* Features Section */}
       <section className="bg-gray-50 py-12">
-        <div className="container mx-auto px-4 md:px-6">
+        <div className=" mx-auto px-4 md:px-6">
           <Features />
         </div>
       </section>
 
       {/* Active Tournaments Section */}
-      <section className="bg-gray-200 py-12">
-        <div className="container mx-auto px-4 md:px-6">
+      <section className="bg-gray-50 py-12">
+        <div className="bg-white mx-auto py-10 px-4 md:px-6">
           <ActiveTournaments />
         </div>
       </section>
 
       {/* Team Section */}
-      <section className="bg-gray-50 py-12">
-        <div className="container mx-auto px-4 md:px-6">
+      <section className="bg-gray-200 py-12 ">
+        <div className="bg-slate-50  mx-auto px-4 py-10 md:px-6">
           <Team />
         </div>
       </section>

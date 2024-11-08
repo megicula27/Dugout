@@ -4,10 +4,30 @@ import Image from "next/image";
 
 export default function GameSection() {
   const games = [
-    { id: 1, name: "Valorant", players: "1M+" },
-    { id: 2, name: "League of Legends", players: "2M+" },
-    { id: 3, name: "Brawl Stars", players: "500K+" },
-    { id: 4, name: "Apex Legends", players: "1.5M+" },
+    {
+      id: 1,
+      name: "Valorant",
+      players: "1M+",
+      source: "/homepage/valorant.jpeg",
+    },
+    {
+      id: 2,
+      name: "League of Legends",
+      players: "2M+",
+      source: "/homepage/LeagueofLegends.jpeg",
+    },
+    {
+      id: 3,
+      name: "Brawl Stars",
+      players: "500K+",
+      source: "/homepage/brawlStars.jpeg",
+    },
+    {
+      id: 4,
+      name: "Apex Legends",
+      players: "1.5M+",
+      source: "/homepage/apex-legends.jpg",
+    },
   ];
 
   return (
@@ -19,9 +39,9 @@ export default function GameSection() {
             <CardContent className="p-6">
               <Image
                 alt={game.name}
-                className="aspect-square object-cover rounded-lg mb-4"
+                className="aspect-square object-contain rounded-lg mb-4"
                 height="200"
-                src="/placeholder.svg"
+                src={game.source}
                 width="200"
               />
               <h3 className="font-semibold text-lg">{game.name}</h3>
