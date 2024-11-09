@@ -2,7 +2,7 @@ import React from "react";
 import { Teams } from "@/components/import/import";
 const page = () => {
   return (
-    <div>
+    <div className="bg-white mt-0">
       <Teams />
     </div>
   );

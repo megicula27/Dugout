@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { TeamStats, HasTeams, CreateOrJoinTeams } from "../import/import";
-import Glitch from "../Glitch/Glitch";
 export default function Teams() {
   const [userTeam, setUserTeam] = useState(null);
   const [action, setAction] = useState(null); // Fixed this line
@@ -43,12 +42,11 @@ export default function Teams() {
   ];
 
   return (
-    <div className="mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 ">
       <h1 className="text-3xl font-bold mb-8">Team Management</h1>
 
       {/* Section 1: Current Team or Create/Join Options */}
       <HasTeams userTeam={userTeam} setAction={setAction} />
-      <Glitch text="hello" link={"/games"} />
       {/* Create or Join Team Form */}
       {action && (
         <CreateOrJoinTeams

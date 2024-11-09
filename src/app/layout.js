@@ -21,11 +21,8 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <ChangeStatusOnLoad />
           <ChangeStatusOnUnload />
-          <div>
-            {" "}
-            {/* Wrapper div to match Layout.js */}
-            {children}
-          </div>
+
+          {children}
         </AuthProvider>
       </body>
     </html>
