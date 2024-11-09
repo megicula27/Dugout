@@ -1,0 +1,67 @@
+/* Scoped styles for TeamStats component */
+.team-stats-container {
+  margin-bottom: 3rem;
+}
+
+.stats-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.stat-card {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+}
+
+.stat-icon {
+  margin-right: 0.5rem;
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.stat-icon-blue {
+  color: #3b82f6; /* Tailwind blue-500 */
+}
+
+.stat-icon-green {
+  color: #10b981; /* Tailwind green-500 */
+}
+
+.stat-icon-red {
+  color: #ef4444; /* Tailwind red-500 */
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.table-container {
+  margin-top: 2rem;
+}

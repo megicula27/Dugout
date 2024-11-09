@@ -155,9 +155,9 @@ export default function Navbar() {
   ];
 
   return (
-    <div className="relative bg-[#6C63FF] overflow-hidden">
+    <div className="relative bg-[#000000] overflow-hidden">
       <BackgroundAnimation />
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="mx-auto px-4 relative z-10">
         <div className="flex items-center justify-between py-4 relative">
           <motion.div
             className="text-white text-xl font-semibold"

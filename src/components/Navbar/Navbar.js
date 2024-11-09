@@ -1,152 +1,60 @@
 "use client";
-import React, { useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import {
-  LayoutDashboard,
-  BookOpen,
-  Gamepad2,
-  PersonStanding,
-  Swords,
-  LogOut,
-  LogIn,
-} from "lucide-react";
+
+import React from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { Home, Gamepad, Trophy, Users, UserPlus, LogOut } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import Glitch from "../Glitch/Glitch";
+import Button from "../Button/Button";
 
-const NavLink = ({ href, icon, children, isActive, onClick }) => {
-  return (
-    <Link href={href} onClick={onClick}>
-      <motion.div
-        className={`flex items-center gap-2 px-4 py-3 rounded-t-lg transition-colors duration-300 cursor-pointer ${
-          isActive
-            ? "bg-white text-[#6C63FF]"
-            : "bg-[#6C63FF] hover:bg-[#5a51e6] text-white"
-        }`}
-        whileHover={{ scale: 1.1, rotate: [0, 5, -5, 0] }}
-        whileTap={{ scale: 0.9 }}
-        animate={{
-          y: isActive ? 0 : -8,
-          transition: { type: "spring", stiffness: 300, damping: 20 },
-        }}
-      >
-        <motion.div
-          animate={isActive ? { rotate: 360 } : { rotate: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          {icon}
-        </motion.div>
-        <motion.span
-          animate={isActive ? { scale: 1.2 } : { scale: 1 }}
-          transition={{ type: "spring", stiffness: 500, damping: 10 }}
-        >
-          {children}
-        </motion.span>
-      </motion.div>
-    </Link>
-  );
-};
-
-const WaveTransition = ({ activeIndex, totalLinks }) => {
-  return (
-    <motion.div
-      className="absolute bottom-0 left-0 right-0 h-3 bg-white"
-      initial={false}
-      animate={{
-        clipPath: `inset(0 0 0 ${(activeIndex / totalLinks) * 100}%)`,
-      }}
-      transition={{ duration: 0.6, ease: "easeInOut" }}
-    >
-      <svg
-        className="absolute bottom-0 w-full h-full"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-      >
-        <motion.path
-          d="M0,0 Q50,100 100,0 L100,100 L0,100 Z"
-          fill="white"
-          animate={{
-            d: [
-              "M0,0 Q50,100 100,0 L100,100 L0,100 Z",
-              "M0,0 Q50,0 100,0 L100,100 L0,100 Z",
-              "M0,0 Q50,100 100,0 L100,100 L0,100 Z",
-            ],
-          }}
-          transition={{
-            repeat: Infinity,
-            repeatType: "reverse",
-            duration: 2,
-            ease: "easeInOut",
-          }}
-        />
-      </svg>
-    </motion.div>
-  );
-};
-
-export default function Navbar() {
-  const [activeLink, setActiveLink] = useState(0);
+const Navbar = () => {
+  const router = useRouter();
+  const pathname = usePathname(); // Get current path
   const { data: session } = useSession();
 
+  const handleSignOut = () => {
+    signOut({ callbackUrl: "/" });
+  };
+
   const links = [
-    {
-      href: "#",
-      icon: <LayoutDashboard className="h-5 w-5" />,
-      label: "Dashboard",
-    },
-    {
-      href: "#",
-      icon: <BookOpen className="h-5 w-5" />,
-      label: "Address Book",
-    },
-    { href: "/games", icon: <Gamepad2 className="h-5 w-5" />, label: "Games" },
-    {
-      href: "/tournament",
-      icon: <Swords className="h-5 w-5" />,
-      label: "Tournaments",
-    },
-    {
-      href: "/findplayer",
-      icon: <PersonStanding className="h-5 w-5" />,
-      label: "Players",
-    },
-    {
-      href: session ? "#" : "/api/auth/signin",
-      icon: session ? (
-        <LogOut className="h-5 w-5" />
-      ) : (
-        <LogIn className="h-5 w-5" />
-      ),
-      label: session ? "Sign Out" : "Sign In",
-      onClick: session ? () => signOut({ callbackUrl: "/" }) : undefined,
-    },
+    { href: "/", label: "Dashboard", icon: <Home /> },
+    { href: "/games", label: "Games", icon: <Gamepad /> },
+    { href: "/tournament", label: "Tournaments", icon: <Trophy /> },
+    { href: "/teams", label: "Teams", icon: <Users /> },
+    { href: "/findplayer", label: "Players", icon: <UserPlus /> },
   ];
 
   return (
-    <div className="relative bg-[#6C63FF]">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between py-4 relative">
-          <div className="text-white text-xl font-semibold">Navbar</div>
-          <div className="flex items-center space-x-6">
-            {links.map((link, index) => (
-              <NavLink
-                key={index}
-                href={link.href}
-                icon={link.icon}
-                isActive={activeLink === index}
-                onClick={() => {
-                  setActiveLink(index);
-                  if (link.onClick) {
-                    link.onClick();
-                  }
-                }}
-              >
-                {link.label}
-              </NavLink>
-            ))}
+    <nav className="bg-black shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="text-white text-xl font-semibold">
+            <Glitch text="Gaming Hub" link="/" />
           </div>
-          <WaveTransition activeIndex={activeLink} totalLinks={links.length} />
+          <div className="flex items-center space-x-6">
+            {links.map((link) => (
+              <div key={link.href} className="relative group">
+                <Glitch text={link.label} link={link.href} />
+                <div
+                  className={`absolute bottom-0 left-0 w-full h-0.5 transform origin-left transition-transform duration-300
+                    ${
+                      pathname === link.href
+                        ? "scale-x-100 bg-green-500"
+                        : "scale-x-0 bg-green-500 group-hover:scale-x-100"
+                    }`}
+                />
+              </div>
+            ))}
+            {session ? (
+              <Button text="Sign Out" onClick={handleSignOut} link={"/"} />
+            ) : (
+              <Button text="Sign In" link="/api/auth/signin" />
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </nav>
   );
-}
+};
+
+export default Navbar;
