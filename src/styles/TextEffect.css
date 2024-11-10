@@ -12,6 +12,7 @@ body {
   align-items: flex-start;
   height: 100vh;
   margin-top: 2rem;
+  padding-top: 10px;
 }
 
 .text {

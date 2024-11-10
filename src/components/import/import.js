@@ -10,3 +10,4 @@ export { default as TeamStats } from "@/components/Teams/TeamStats";
 export { default as HasTeams } from "@/components/Teams/HasTeams";
 export { default as CreateOrJoinTeams } from "@/components/Teams/CreateOrJoinTeams";
 export { default as Teams } from "@/components/Teams/Teams";
+export { default as NavHamburger } from "@/components/Navbar/NavHamburger";
