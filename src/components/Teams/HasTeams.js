@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy, Users } from "lucide-react";
 import "@/styles/has_teams.css"; // Import the scoped CSS file
+import { useRouter } from "next/navigation"; // Adjusted import
 
-const HasTeams = ({ userTeam, setAction }) => {
+const HasTeams = ({ userTeam }) => {
+  const router = useRouter(); // Using useRouter hook
+
   return (
     <section className="has-teams-container">
       <Card>
@@ -37,9 +40,11 @@ const HasTeams = ({ userTeam, setAction }) => {
           ) : (
             <div className="no-team">
               <p>You are not part of any team yet.</p>
+              <p>Head to games section for creating or joining teams</p>
               <div className="action-buttons">
-                <Button onClick={() => setAction("create")}>Create Team</Button>
-                <Button onClick={() => setAction("join")}>Join Team</Button>
+                <Button onClick={() => router.push("/games")}>
+                  Browse Games
+                </Button>
               </div>
             </div>
           )}
