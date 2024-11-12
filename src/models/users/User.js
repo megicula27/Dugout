@@ -6,8 +6,16 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: { type: String }, // For credentials-based auth
   avatar: String,
-  games: [String],
-  teams: [String],
+  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Teams" }],
+  tournaments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tournaments" }],
+  brawlStarsTeam: [{ type: mongoose.Schema.Types.ObjectId, ref: "TeamBrawl" }],
+  brawlStarsTournaments: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "TournamentBrawl" },
+  ],
+  valorantTeam: [{ type: mongoose.Schema.Types.ObjectId, ref: "TeamValorant" }],
+  valorantTournaments: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "TournamentValorant" },
+  ],
   activeStatus: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
 });
