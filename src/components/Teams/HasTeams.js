@@ -15,7 +15,7 @@ const HasTeams = ({ userTeam }) => {
           <CardTitle>Your Team</CardTitle>
         </CardHeader>
         <CardContent>
-          {userTeam ? (
+          {userTeam.length > 0 ? (
             <div>
               <p className="team-name">{userTeam.name}</p>
               {userTeam.game && (
@@ -27,7 +27,9 @@ const HasTeams = ({ userTeam }) => {
               <div className="team-stats">
                 <div className="stat-item">
                   <Users className="stat-icon" />
-                  <span>{userTeam.members} members</span>
+                  <span>
+                    {userTeam.players.map((player) => player.username)}
+                  </span>
                 </div>
                 <div className="stat-item">
                   <Trophy className="stat-icon" />

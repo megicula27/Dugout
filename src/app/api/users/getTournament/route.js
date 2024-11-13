@@ -1,4 +1,4 @@
-// pages/api/games/getTournaments.js
+// pages/api/users/getTournaments.js
 import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
 

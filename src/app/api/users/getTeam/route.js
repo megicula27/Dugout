@@ -1,4 +1,4 @@
-// pages/api/games/getTeam.js
+// pages/api/users/getTeam.js
 import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
 
@@ -11,7 +11,7 @@ export const GET = async (req, res) => {
       .populate({
         path: "teams",
         model: "Team",
-        select: "players game name",
+        select: "players game name uid",
         populate: {
           path: "players",
           model: "User", // Replace 'User' with the model name you’re using for users

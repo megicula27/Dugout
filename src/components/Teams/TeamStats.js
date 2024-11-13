@@ -29,7 +29,10 @@ const TeamStats = ({ userTeam, upcomingMatches }) => {
                       <Users className="stat-icon stat-icon-blue" />
                       <span>Members</span>
                     </div>
-                    <span className="stat-value">{userTeam.members}</span>
+                    <span className="stat-value">
+                      {userTeam.players.map((player) => player.username)}
+                    </span>{" "}
+                    {/* TODO yahan pe shayad userTeam.players.username hoga*/}
                   </CardContent>
                 </Card>
                 <Card>
@@ -38,7 +41,8 @@ const TeamStats = ({ userTeam, upcomingMatches }) => {
                       <Trophy className="stat-icon stat-icon-green" />
                       <span>Wins</span>
                     </div>
-                    <span className="stat-value">{userTeam.wins}</span>
+                    <span className="stat-value">{userTeam.wins || 0}</span>{" "}
+                    {/* TODO future mein add karunga filhaal 0*/}
                   </CardContent>
                 </Card>
                 <Card>
@@ -47,7 +51,8 @@ const TeamStats = ({ userTeam, upcomingMatches }) => {
                       <Trophy className="stat-icon stat-icon-red" />
                       <span>Losses</span>
                     </div>
-                    <span className="stat-value">{userTeam.losses}</span>
+                    <span className="stat-value">{userTeam.losses || 0}</span>
+                    {/* TODO future mein add karunga filhaal 0*/}
                   </CardContent>
                 </Card>
               </div>
@@ -63,11 +68,12 @@ const TeamStats = ({ userTeam, upcomingMatches }) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
+                  {/* future mein tournaments ke jagah matches honge filhaal tournaments*/}
                   {upcomingMatches.map((match) => (
-                    <TableRow key={match.id}>
-                      <TableCell>{match.opponent}</TableCell>
-                      <TableCell>{match.date}</TableCell>
-                      <TableCell>{match.time}</TableCell>
+                    <TableRow key={match.uid}>
+                      <TableCell>{match.opponent || "Sentinels"}</TableCell>
+                      <TableCell>{match.startDate}</TableCell>
+                      <TableCell>{match.endDate}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

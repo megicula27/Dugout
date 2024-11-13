@@ -14,19 +14,22 @@ export default function Teams() {
     const getTeam = async () => {
       try {
         const responseTeam = await axios.get("/api/users/getTeam", {
-          params: { id: session?.user?.id }, // Adjusted to session.user.id if needed
+          params: { userId: session?.user?.id }, // Adjusted to session.user.id if needed
         });
         if (responseTeam.status === 200) {
           setUserTeam(responseTeam.data.team);
         }
 
         const responseTournament = await axios.get("/api/users/getTournament", {
-          params: { id: session?.user?.id },
+          params: { userId: session?.user?.id },
         });
 
         if (responseTournament.status === 200) {
           setUpcomingMatches(responseTournament.data.tournament);
         }
+        console.log(
+          responseTeam.data.team + " " + responseTournament.data.tournament
+        );
       } catch (error) {
         console.error(error.message || error);
       }
