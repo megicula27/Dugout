@@ -1,12 +1,21 @@
 // pages/api/users/getTeam.js
 import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
+import { NextResponse } from "next/server";
 
-export const GET = async (req, res) => {
-  await dbConnect();
-  const { userId } = req.query;
-
+export async function POST(req) {
   try {
+    await dbConnect();
+
+    const { userId } = await req.json();
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 }
+      );
+    }
+
     const user = await User.findById(userId)
       .populate({
         path: "teams",
@@ -14,20 +23,35 @@ export const GET = async (req, res) => {
         select: "players game name uid",
         populate: {
           path: "players",
-          model: "User", // Replace 'User' with the model name you’re using for users
-          select: "username", // Fields you want to display
+          model: "User",
+          select: "username",
         },
       })
       .exec();
 
-    const userTeams = user.teams; // This now includes populated player info for each team
-
     if (!user) {
-      return res.status(404).json({ error: "User not found." });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return res.status(200).json({ teams: userTeams });
+    const userTeams = user.teams;
+
+    return NextResponse.json(
+      {
+        success: true,
+        teams: userTeams,
+        count: userTeams.length,
+      },
+      { status: 200 }
+    );
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in getTeam API:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "An error occurred while fetching teams",
+        message: error.message,
+      },
+      { status: 500 }
+    );
   }
-};
+}

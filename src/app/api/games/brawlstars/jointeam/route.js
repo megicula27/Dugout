@@ -3,36 +3,111 @@ import dbConnect from "@/lib/database/mongo";
 import TeamBrawl from "@/models/Teams/TeamBrawl";
 import Teams from "@/models/Teams/Teams";
 import User from "@/models/User";
+import { NextResponse } from "next/server";
 
-export const POST = async (req, res) => {
-  await dbConnect();
-  const { teamUid, userId } = req.body;
-
+export async function POST(req, { params }) {
   try {
-    const team = await TeamBrawl.findOne({ uid: teamUid }).select(
-      "_id players"
-    );
-    if (!team) {
-      return res.status(404).json({ error: "Team not found." });
+    await dbConnect();
+
+    const { teamUid, userId } = await req.json();
+    const { gameName } = params;
+
+    // Input validation
+    if (!teamUid || !userId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Team UID and user ID are required",
+        },
+        { status: 400 }
+      );
     }
 
-    if (team.players.length === 3) {
-      return res.status(400).json({ error: "Team is full." });
-    }
-    const generalTeam = await Teams.findOne({ uid: teamUid }).select(
-      "_id players"
-    );
+    // Find game-specific team and general team in parallel
+    const [team, generalTeam, user] = await Promise.all([
+      TeamBrawl.findOne({ uid: teamUid }),
+      Teams.findOne({ uid: teamUid }),
+      User.findById(userId),
+    ]);
 
+    // Validations
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "User not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    if (!team || !generalTeam) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Team not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    if (team.players.includes(userId)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "User is already a member of this team",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (team.players.length >= 3) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Team is full",
+          maxSize: 3,
+          currentSize: team.players.length,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Update all documents
     team.players.push(userId);
-    await team.save();
-    await Teams.findByIdAndUpdate(generalTeam._id, {
-      $push: { players: userId },
-    });
+    generalTeam.players.push(userId);
+    user.teams.push(generalTeam._id);
 
-    await User.findByIdAndUpdate(userId, { $push: { teams: generalTeam._id } });
+    // Save all documents in parallel
+    await Promise.all([team.save(), generalTeam.save(), user.save()]);
 
-    return res.status(200).json({ message: "Joined team successfully", team });
+    // Populate player details if needed
+    // await team.populate('players', 'username');
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Joined team successfully",
+        team: {
+          uid: team.uid,
+          teamName: team.teamName,
+          game: gameName,
+          players: team.players,
+          currentSize: team.players.length,
+          maxSize: 3,
+        },
+      },
+      { status: 200 }
+    );
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in joinTeam API:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "An error occurred while joining the team",
+        message: error.message,
+      },
+      { status: 500 }
+    );
   }
-};
+}

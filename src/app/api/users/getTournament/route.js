@@ -1,19 +1,58 @@
 // pages/api/users/getTournaments.js
 import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
+import { NextResponse } from "next/server";
 
-export const GET = async (req, res) => {
-  await dbConnect();
-  const { userId } = req.query;
-
+export async function POST(req) {
   try {
-    const user = await User.findById(userId).populate("tournaments");
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
+    await dbConnect();
+
+    const { userId } = await req.json();
+
+    if (!userId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "User ID is required",
+        },
+        { status: 400 }
+      );
     }
 
-    return res.status(200).json({ tournaments: user.tournaments });
+    const user = await User.findById(userId).populate({
+      path: "tournaments",
+      model: "Tournament",
+      // Add any specific fields you want to select
+      // select: "name date status participants"
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "User not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        tournaments: user.tournaments,
+        count: user.tournaments.length,
+      },
+      { status: 200 }
+    );
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in getTournaments API:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "An error occurred while fetching tournaments",
+        message: error.message,
+      },
+      { status: 500 }
+    );
   }
-};
+}

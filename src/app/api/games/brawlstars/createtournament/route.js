@@ -4,25 +4,81 @@ import TournamentBrawl from "@/models/Tournaments/TournamentBrawl";
 import Tournaments from "@/models/Tournaments/Tournaments";
 import User from "@/models/users/User";
 import { generateTournamentId } from "@/utils/idGenerator";
+import { NextResponse } from "next/server";
 
-export const POST = async (req, res) => {
-  await dbConnect();
-  const {
-    userId,
-    tournamentName,
-    startDate,
-    endDate,
-    description,
-    prize,
-    tournamentSize,
-  } = req.body;
-
+export async function POST(req, { params }) {
   try {
-    // Generate unique ID for the tournament
+    await dbConnect();
+
+    const {
+      userId,
+      tournamentName,
+      startDate,
+      endDate,
+      description,
+      prize,
+      tournamentSize,
+    } = await req.json();
+
+    const { gameName } = params;
+
+    // Input validation
+    if (
+      !userId ||
+      !tournamentName ||
+      !startDate ||
+      !endDate ||
+      !tournamentSize
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Missing required fields",
+          requiredFields: [
+            "userId",
+            "tournamentName",
+            "startDate",
+            "endDate",
+            "tournamentSize",
+          ],
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate dates
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start < new Date() || end <= start) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid tournament dates",
+          message:
+            "Start date must be in the future and end date must be after start date",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "User not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    // Generate tournament ID
     const uid = generateTournamentId();
 
-    // Create the tournament in the specific game schema (TournamentBrawl)
-    const newTournament = await TournamentBrawl.create({
+    // Create tournament data object
+    const tournamentData = {
       uid,
       startDate,
       endDate,
@@ -30,29 +86,64 @@ export const POST = async (req, res) => {
       prize,
       tournamentSize,
       name: tournamentName,
-    });
+    };
 
-    // Save a reference in the general Tournaments schema
+    // Create game-specific tournament
+    const newTournament = await TournamentBrawl.create(tournamentData);
+
+    // Create general tournament
     const generalTournament = await Tournaments.create({
-      uid: newTournament.uid,
-      startDate: newTournament.startDate,
-      endDate: newTournament.endDate,
-      description: newTournament.description,
-      prize: newTournament.prize,
-      tournamentSize: newTournament.tournamentSize,
-      name: newTournament.name,
-      game: "brawl-stars", // Specify the game name or get it dynamically if needed
+      ...tournamentData,
+      game: gameName,
     });
 
-    // Update the user's tournaments array with the new tournament ID
-    await User.findByIdAndUpdate(userId, {
-      $push: { tournaments: generalTournament._id },
-    });
+    // Update user's tournaments
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $push: { tournaments: generalTournament._id } },
+      { new: true }
+    );
 
-    return res.status(201).json({
-      message: "Tournament created successfully",
-    });
+    if (!updatedUser) {
+      // Rollback tournament creation if user update fails
+      await TournamentBrawl.findByIdAndDelete(newTournament._id);
+      await Tournaments.findByIdAndDelete(generalTournament._id);
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Failed to update user with tournament",
+        },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Tournament created successfully",
+        tournament: {
+          uid,
+          name: tournamentName,
+          game: gameName || "brawl-stars",
+          startDate,
+          endDate,
+          description,
+          prize,
+          tournamentSize,
+        },
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in createTournament API:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "An error occurred while creating the tournament",
+        message: error.message,
+      },
+      { status: 500 }
+    );
   }
-};
+}

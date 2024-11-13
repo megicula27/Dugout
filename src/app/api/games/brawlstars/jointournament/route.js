@@ -5,61 +5,146 @@ import GeneralTournament from "@/models/Tournaments/Tournaments";
 import TeamBrawl from "@/models/Teams/TeamBrawl";
 import GeneralTeam from "@/models/Teams/Teams";
 import User from "@/models/users/User";
+import { NextResponse } from "next/server";
 
-export const POST = async (req, res) => {
-  await dbConnect();
-  const { teamId, tournamentId, userId } = req.body;
-
+export async function POST(req, { params }) {
   try {
-    // Find the specific tournament and general tournament by UID
-    const tournament = await TournamentBrawl.findOne({
-      uid: tournamentId,
-    }).select("teams");
-    const generalTournament = await GeneralTournament.findOne({
-      uid: tournamentId,
-    }).select("teams");
+    await dbConnect();
 
-    if (!tournament || !generalTournament) {
-      return res.status(404).json({ error: "Tournament not found." });
+    const { teamId, tournamentId, userId } = await req.json();
+    const { gameName } = params;
+
+    // Input validation
+    if (!teamId || !tournamentId || !userId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Team ID, Tournament ID, and User ID are required",
+        },
+        { status: 400 }
+      );
     }
 
-    // Find the specific team and general team by ID
-    const team = await TeamBrawl.findById(teamId).select("tournaments");
-    const generalTeam = await GeneralTeam.findOne({ uid: teamId }).select(
-      "tournaments"
-    );
+    // Fetch all required documents in parallel
+    const [tournament, generalTournament, team, generalTeam, user] =
+      await Promise.all([
+        TournamentBrawl.findOne({ uid: tournamentId }),
+        GeneralTournament.findOne({ uid: tournamentId }),
+        TeamBrawl.findById(teamId),
+        GeneralTeam.findById(teamId),
+        User.findById(userId),
+      ]);
+
+    // Validations
+    if (!tournament || !generalTournament) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Tournament not found",
+        },
+        { status: 404 }
+      );
+    }
 
     if (!team || !generalTeam) {
-      return res.status(404).json({ error: "Team not found." });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Team not found",
+        },
+        { status: 404 }
+      );
     }
 
-    // Find the user
-    const user = await User.findById(userId).select("tournaments");
     if (!user) {
-      return res.status(404).json({ error: "User not found." });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "User not found",
+        },
+        { status: 404 }
+      );
     }
 
-    // Update the specific tournament and general tournament's team list
+    // Check if team is already in tournament
+    if (tournament.teams.includes(teamId)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Team is already registered in this tournament",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check tournament capacity if needed
+    if (
+      tournament.tournamentSize &&
+      tournament.teams.length >= tournament.tournamentSize
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Tournament is full",
+          currentSize: tournament.teams.length,
+          maxSize: tournament.tournamentSize,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Update references
     tournament.teams.push(teamId);
-    generalTournament.teams.push(generalTeam._id);
-    await tournament.save();
-    await generalTournament.save();
-
-    // Update the specific team and general team's tournament list
     team.tournaments.push(tournament._id);
-    generalTeam.tournaments.push(generalTournament._id);
-    await team.save();
-    await generalTeam.save();
-
-    // Update the user's tournament list with the general tournament ID
     user.tournaments.push(generalTournament._id);
-    await user.save();
 
-    return res.status(200).json({
-      message: "Joined tournament successfully",
-      tournament: generalTournament, // Returning general tournament data for consistency
-    });
+    // Save all updates in parallel
+    await Promise.all([
+      tournament.save(),
+      generalTournament.save(),
+      team.save(),
+      generalTeam.save(),
+      user.save(),
+    ]);
+
+    // Optional: Populate tournament details for response
+    await tournament.populate([
+      {
+        path: "teams",
+        select: "teamName players",
+        populate: {
+          path: "players",
+          select: "username",
+        },
+      },
+    ]);
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Joined tournament successfully",
+        tournament: {
+          uid: tournament.uid,
+          name: tournament.name,
+          game: gameName,
+          teams: tournament.teams,
+          startDate: tournament.startDate,
+          endDate: tournament.endDate,
+          currentTeams: tournament.teams.length,
+          maxTeams: tournament.tournamentSize,
+        },
+      },
+      { status: 200 }
+    );
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in joinTournament API:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "An error occurred while joining the tournament",
+        message: error.message,
+      },
+      { status: 500 }
+    );
   }
-};
+}

@@ -13,9 +13,10 @@ export default function Teams() {
   useEffect(() => {
     const getTeam = async () => {
       try {
-        const responseTeam = await axios.get("/api/users/getTeam", {
-          params: { userId: session?.user?.id }, // Adjusted to session.user.id if needed
+        const responseTeam = await axios.post("/api/users/getTeam", {
+          userId: session?.user?.id, // Send `userId` in the request body
         });
+
         if (responseTeam.status === 200) {
           setUserTeam(responseTeam.data.team);
         }

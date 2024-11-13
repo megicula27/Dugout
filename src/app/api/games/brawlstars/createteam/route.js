@@ -4,31 +4,99 @@ import TeamBrawl from "@/models/Teams/TeamBrawl";
 import Teams from "@/models/Teams/Teams";
 import User from "@/models/users/User";
 import { generateTeamId } from "@/utils/idGenerator";
-export const POST = async (req, res) => {
-  await dbConnect();
-  const { teamName, userId } = req.body;
+import { NextResponse } from "next/server";
 
+export async function POST(req, { params }) {
   try {
+    await dbConnect();
+
+    const { teamName, userId } = await req.json();
+    const { gameName } = params;
+
+    // Input validation
+    if (!teamName || !userId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Team name and user ID are required",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check for existing team
     const existingTeam = await TeamBrawl.findOne({ teamName });
     if (existingTeam) {
-      return res.status(400).json({ error: "Team name already exists." });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Team name already exists",
+        },
+        { status: 400 }
+      );
     }
+
+    // Generate team ID
     const uid = generateTeamId();
+
+    // Create game-specific team
     const newTeam = await TeamBrawl.create({
       uid,
       teamName,
       players: [userId],
     });
+
+    // Create general team
     const generalTeam = await Teams.create({
       uid,
       teamName,
       players: [userId],
-      game: "brawl-stars",
+      game: gameName || "brawl-stars", // Use dynamic game name from URL or fallback
     });
-    await User.findByIdAndUpdate(userId, { $push: { teams: generalTeam._id } });
 
-    return res.status(201).json({ message: "Team created successfully" });
+    // Update user's teams
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $push: { teams: generalTeam._id } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      // Rollback team creation if user update fails
+      await TeamBrawl.findByIdAndDelete(newTeam._id);
+      await Teams.findByIdAndDelete(generalTeam._id);
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "User not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Team created successfully",
+        team: {
+          uid,
+          teamName,
+          game: gameName || "brawl-stars",
+          players: [userId],
+        },
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in createTeam API:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "An error occurred while creating the team",
+        message: error.message,
+      },
+      { status: 500 }
+    );
   }
-};
+}

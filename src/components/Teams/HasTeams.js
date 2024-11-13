@@ -1,6 +1,7 @@
+"use client";
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Trophy, Users } from "lucide-react";
 import "@/styles/has_teams.css"; // Import the scoped CSS file
 import { useRouter } from "next/navigation"; // Adjusted import
