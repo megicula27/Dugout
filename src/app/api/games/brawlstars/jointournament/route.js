@@ -1,3 +1,4 @@
+// Utility function for common population patterns
 // pages/api/games/[gameName]/jointournament.js
 import dbConnect from "@/lib/database/mongo";
 import TournamentBrawl from "@/models/Tournaments/TournamentBrawl";
@@ -6,6 +7,39 @@ import TeamBrawl from "@/models/Teams/TeamBrawl";
 import GeneralTeam from "@/models/Teams/Teams";
 import User from "@/models/users/User";
 import { NextResponse } from "next/server";
+
+const populateTournament = {
+  basic: {
+    path: "teams",
+    select: "teamName players",
+    populate: {
+      path: "players",
+      select: "username",
+    },
+  },
+  detailed: {
+    path: "teams",
+    select: "teamName players createdAt status",
+    populate: {
+      path: "players",
+      select: "username avatar status",
+    },
+  },
+};
+
+const populateUser = {
+  tournaments: {
+    path: "tournaments",
+    select: "name startDate endDate prize tournamentSize",
+    model: "GeneralTournament",
+  },
+  brawlStarsTournaments: {
+    path: "brawlStarsTournaments",
+    select: "name startDate endDate prize tournamentSize teams",
+    model: "TournamentBrawl",
+    populate: populateTournament.basic,
+  },
+};
 
 export async function POST(req, { params }) {
   try {
@@ -33,6 +67,8 @@ export async function POST(req, { params }) {
         TeamBrawl.findById(teamId),
         GeneralTeam.findById(teamId),
         User.findById(userId),
+        // .populate(populateUser.tournaments)
+        // .populate(populateUser.brawlStarsTournaments)
       ]);
 
     // Validations
@@ -97,6 +133,7 @@ export async function POST(req, { params }) {
     tournament.teams.push(teamId);
     team.tournaments.push(tournament._id);
     user.tournaments.push(generalTournament._id);
+    user.brawlStarsTournaments.push(tournament._id);
 
     // Save all updates in parallel
     await Promise.all([
@@ -107,17 +144,9 @@ export async function POST(req, { params }) {
       user.save(),
     ]);
 
-    // Optional: Populate tournament details for response
-    await tournament.populate([
-      {
-        path: "teams",
-        select: "teamName players",
-        populate: {
-          path: "players",
-          select: "username",
-        },
-      },
-    ]);
+    // Populate tournament details for response
+
+    await user.populate(populateUser.tournaments);
 
     return NextResponse.json(
       {

@@ -1,11 +1,29 @@
-// pages/api/games/[gameName]/createteam.js
-import dbConnect from "@/lib/database/mongo";
-import TeamBrawl from "@/models/Teams/TeamBrawl";
-import Teams from "@/models/Teams/Teams";
-import User from "@/models/users/User";
-import { generateTeamId } from "@/utils/idGenerator";
-import { NextResponse } from "next/server";
+// Utility function for common population patterns
+const populateTeam = {
+  basic: {
+    path: "players",
+    select: "username",
+  },
+  detailed: {
+    path: "players",
+    select: "username avatar status",
+  },
+};
 
+const populateUser = {
+  teams: {
+    path: "teams",
+    select: "teamName players game createdAt",
+    populate: populateTeam.basic,
+  },
+  brawlStarsTeam: {
+    path: "brawlStarsTeam",
+    select: "teamName players game createdAt",
+    populate: populateTeam.basic,
+  },
+};
+
+// Modified createTeam endpoint
 export async function POST(req, { params }) {
   try {
     await dbConnect();
@@ -57,7 +75,7 @@ export async function POST(req, { params }) {
     // Update user's teams
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { $push: { teams: generalTeam._id } },
+      { $push: { teams: generalTeam._id, brawlStarsTeam: newTeam._id } },
       { new: true }
     );
 
@@ -75,6 +93,12 @@ export async function POST(req, { params }) {
       );
     }
 
+    // Populate the created team and user's updated teams and brawlStarsTeam
+    await newTeam.populate(populateTeam.basic);
+    await generalTeam.populate(populateTeam.basic);
+    await updatedUser.populate(populateUser.teams);
+    await updatedUser.populate(populateUser.brawlStarsTeam);
+
     return NextResponse.json(
       {
         success: true,
@@ -83,7 +107,7 @@ export async function POST(req, { params }) {
           uid,
           teamName,
           game: gameName || "brawl-stars",
-          players: [userId],
+          players: newTeam.players,
         },
       },
       { status: 201 }

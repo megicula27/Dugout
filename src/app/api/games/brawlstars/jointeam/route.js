@@ -5,6 +5,29 @@ import Teams from "@/models/Teams/Teams";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
 
+const populateTeam = {
+  basic: {
+    path: "players",
+    select: "username",
+  },
+  detailed: {
+    path: "players",
+    select: "username avatar status", // Add more fields if needed
+  },
+};
+const populateUser = {
+  teams: {
+    path: "teams",
+    select: "teamName players game createdAt",
+    populate: populateTeam.basic,
+  },
+  brawlStarsTeam: {
+    path: "brawlStarsTeam",
+    select: "teamName players game createdAt",
+    populate: populateTeam.basic,
+  },
+};
+
 export async function POST(req, { params }) {
   try {
     await dbConnect();
@@ -77,12 +100,13 @@ export async function POST(req, { params }) {
     team.players.push(userId);
     generalTeam.players.push(userId);
     user.teams.push(generalTeam._id);
-
+    user.brawlStarsTeam.push(team._id);
     // Save all documents in parallel
     await Promise.all([team.save(), generalTeam.save(), user.save()]);
 
     // Populate player details if needed
-    // await team.populate('players', 'username');
+
+    await user.populate(populateUser.teams); // here i need to populate teams which contains generalTeam id
 
     return NextResponse.json(
       {

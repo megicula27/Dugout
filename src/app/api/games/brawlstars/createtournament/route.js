@@ -97,14 +97,7 @@ export async function POST(req, { params }) {
       game: gameName,
     });
 
-    // Update user's tournaments
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $push: { tournaments: generalTournament._id } },
-      { new: true }
-    );
-
-    if (!updatedUser) {
+    if (!newTournament || !generalTournament) {
       // Rollback tournament creation if user update fails
       await TournamentBrawl.findByIdAndDelete(newTournament._id);
       await Tournaments.findByIdAndDelete(generalTournament._id);

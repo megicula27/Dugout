@@ -1,37 +1,36 @@
-// pages/api/games/[gameName]/teamAndTournaments.js
 import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
 
-export const GET = async (req, res) => {
+export async function GET(request, { params }) {
   await dbConnect();
-  const { id } = req.query;
+  const { gameName } = params;
 
   try {
-    const teamsAndTournaments = await User.findById(id)
+    const teamsAndTournaments = await User.findById(gameName)
       .select("brawlStarsTeam brawlStarsTournaments")
       .populate({
         path: "brawlStarsTeam",
-        model: "TeamBrawl", // This should match your model name
-        select: "name players game createdAt", // Fields you want to display from TeamBrawl
+        model: "TeamBrawl",
+        select: "name players game createdAt",
         populate: {
           path: "players",
-          model: "User", // Populate player details from the User model
-          select: "username", // Adjust fields as needed
+          model: "User",
+          select: "username",
         },
       })
       .populate({
         path: "brawlStarsTournaments",
-        model: "TournamentBrawl", // This should match your model name
-        select: "name startDate endDate prize tournamentSize", // Fields you want to display from TournamentBrawl
+        model: "TournamentBrawl",
+        select: "name startDate endDate prize tournamentSize",
       })
       .exec();
 
     if (!teamsAndTournaments) {
-      return res.status(404).json({ error: "User not found." });
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
-    return res.status(200).json({ teamsAndTournaments });
+    return NextResponse.json({ teamsAndTournaments }, { status: 200 });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-};
+}
