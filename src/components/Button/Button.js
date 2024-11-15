@@ -1,11 +1,11 @@
 import React from "react";
 import Link from "next/link";
 import "@/styles/button.css";
-const Button = ({ text, link }) => {
+const Button = ({ text, onClick }) => {
   return (
-    <Link href={link} className="btn">
+    <div className="btn" onClick={onClick}>
       {text}
-    </Link>
+    </div>
   );
 };
 

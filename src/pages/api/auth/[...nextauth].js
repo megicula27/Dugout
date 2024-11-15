@@ -82,6 +82,7 @@ const options = {
         token.name = user.name;
         token.email = user.email;
       }
+      console.log(user);
 
       return token;
     },
@@ -122,6 +123,8 @@ const options = {
       // Retrieve the token manually
 
       // If we have a valid token, update the active status in the database
+      console.log("sign out was called ");
+
       if (token) {
         const userFromDB = await User.findOne({ email: token.email }).select(
           "email activeStatus"

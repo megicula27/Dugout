@@ -4,11 +4,11 @@ import { Card, CardContent } from "@/components/ui/Card";
 import Image from "next/image";
 
 const featuredGames = [
-  { id: 1, name: "Valorant", image: "/homepage/valorant.jpeg" },
-  { id: 2, name: "Brawl Stars", image: "/homepage/brawlStars.jpeg" },
-  { id: 3, name: "Apex Legends", image: "/homepage/apex-legends.jpg" },
-  { id: 4, name: "CS:GO", image: "/homepage/csgo.jpeg" },
-  { id: 5, name: "League of Legends", image: "/homepage/LeagueofLegends.jpeg" },
+  { id: 1, name: "valorant", image: "/homepage/valorant.jpeg" },
+  { id: 2, name: "brawl-stars", image: "/homepage/brawlStars.jpeg" },
+  { id: 3, name: "apex-legends", image: "/homepage/apex-legends.jpg" },
+  { id: 4, name: "csgo", image: "/homepage/csgo.jpeg" },
+  { id: 5, name: "league-of-legends", image: "/homepage/LeagueofLegends.jpeg" },
 ];
 
 export default function GameSelection({ onGameSelect }) {
@@ -18,7 +18,7 @@ export default function GameSelection({ onGameSelect }) {
         <Card
           key={game.id}
           className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => onGameSelect(game)}
+          onClick={() => onGameSelect(game.name)}
         >
           <CardContent className="p-4 flex flex-col items-center">
             <Image

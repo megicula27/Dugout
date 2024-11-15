@@ -11,3 +11,4 @@ export { default as HasTeams } from "@/components/Teams/HasTeams";
 export { default as Teams } from "@/components/Teams/Teams";
 export { default as NavHamburger } from "@/components/Navbar/NavHamburger";
 export { default as CreateOrJoinTeam } from "@/components/Games/CreateOrJoinTeam";
+export { default as Games } from "@/components/Games/Games";

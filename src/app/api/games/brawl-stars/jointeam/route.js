@@ -2,7 +2,7 @@
 import dbConnect from "@/lib/database/mongo";
 import TeamBrawl from "@/models/Teams/TeamBrawl";
 import Teams from "@/models/Teams/Teams";
-import User from "@/models/User";
+import User from "@/models/users/User";
 import { NextResponse } from "next/server";
 
 const populateTeam = {
@@ -33,7 +33,6 @@ export async function POST(req, { params }) {
     await dbConnect();
 
     const { teamUid, userId } = await req.json();
-    const { gameName } = params;
 
     // Input validation
     if (!teamUid || !userId) {
@@ -106,20 +105,13 @@ export async function POST(req, { params }) {
 
     // Populate player details if needed
 
-    await user.populate(populateUser.teams); // here i need to populate teams which contains generalTeam id
+    await user.populate(populateUser.brawlStarsTeam); // here i need to populate teams which contains generalTeam id
 
     return NextResponse.json(
       {
         success: true,
         message: "Joined team successfully",
-        team: {
-          uid: team.uid,
-          teamName: team.teamName,
-          game: gameName,
-          players: team.players,
-          currentSize: team.players.length,
-          maxSize: 3,
-        },
+        team: user.brawlStarsTeam,
       },
       { status: 200 }
     );

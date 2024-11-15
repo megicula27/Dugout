@@ -1,4 +1,12 @@
 // Utility function for common population patterns
+import dbConnect from "@/lib/database/mongo";
+import TeamBrawl from "@/models/Teams/TeamBrawl";
+import Teams from "@/models/Teams/Teams";
+import User from "@/models/users/User";
+import { generateTeamId } from "@/utils/idGenerator";
+import { NextResponse } from "next/server";
+import mongoose from "mongoose";
+
 const populateTeam = {
   basic: {
     path: "players",
@@ -29,8 +37,7 @@ export async function POST(req, { params }) {
     await dbConnect();
 
     const { teamName, userId } = await req.json();
-    const { gameName } = params;
-
+    console.log("i was here asloooooooooooooooo" + userId + "and" + teamName);
     // Input validation
     if (!teamName || !userId) {
       return NextResponse.json(
@@ -41,6 +48,8 @@ export async function POST(req, { params }) {
         { status: 400 }
       );
     }
+
+    console.log();
 
     // Check for existing team
     const existingTeam = await TeamBrawl.findOne({ teamName });
@@ -58,31 +67,11 @@ export async function POST(req, { params }) {
     const uid = generateTeamId();
 
     // Create game-specific team
-    const newTeam = await TeamBrawl.create({
-      uid,
-      teamName,
-      players: [userId],
-    });
 
-    // Create general team
-    const generalTeam = await Teams.create({
-      uid,
-      teamName,
-      players: [userId],
-      game: gameName || "brawl-stars", // Use dynamic game name from URL or fallback
-    });
+    const user = await User.findById(userId).select("teams brawlStarsTeam");
 
-    // Update user's teams
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $push: { teams: generalTeam._id, brawlStarsTeam: newTeam._id } },
-      { new: true }
-    );
-
-    if (!updatedUser) {
-      // Rollback team creation if user update fails
-      await TeamBrawl.findByIdAndDelete(newTeam._id);
-      await Teams.findByIdAndDelete(generalTeam._id);
+    if (!user) {
+      // Rollback team creation if user update fail
 
       return NextResponse.json(
         {
@@ -92,23 +81,36 @@ export async function POST(req, { params }) {
         { status: 404 }
       );
     }
+    const players = [user._id];
 
+    const newTeam = await TeamBrawl.create({
+      uid,
+      teamName,
+      players,
+    });
+
+    // Create general team
+    const generalTeam = await Teams.create({
+      uid,
+      teamName,
+      players,
+      game: "brawl-stars",
+    });
+
+    // Update user's teams
+    user.teams.push(generalTeam._id); // Use the directly fetched `ObjectId` from the database
+    user.brawlStarsTeam.push(newTeam._id);
+
+    const updatedUser = await user.save();
     // Populate the created team and user's updated teams and brawlStarsTeam
-    await newTeam.populate(populateTeam.basic);
-    await generalTeam.populate(populateTeam.basic);
-    await updatedUser.populate(populateUser.teams);
+
     await updatedUser.populate(populateUser.brawlStarsTeam);
 
     return NextResponse.json(
       {
         success: true,
         message: "Team created successfully",
-        team: {
-          uid,
-          teamName,
-          game: gameName || "brawl-stars",
-          players: newTeam.players,
-        },
+        team: updatedUser.brawlStarsTeam,
       },
       { status: 201 }
     );

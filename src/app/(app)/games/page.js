@@ -1,6 +1,10 @@
-// import { Teams } from "@/components/import/import";
+import { Games } from "@/components/import/import";
 const page = () => {
-  return <div>heloo</div>;
+  return (
+    <div>
+      <Games />
+    </div>
+  );
 };
 
 export default page;

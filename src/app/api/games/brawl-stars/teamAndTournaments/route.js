@@ -1,12 +1,13 @@
+// route api/games/brawl-stars/teamAndTournaments
 import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
 
 export async function GET(request, { params }) {
   await dbConnect();
-  const { gameName } = params;
+  const { id } = await request.json();
 
   try {
-    const teamsAndTournaments = await User.findById(gameName)
+    const teamsAndTournaments = await User.findById(id)
       .select("brawlStarsTeam brawlStarsTournaments")
       .populate({
         path: "brawlStarsTeam",
@@ -29,7 +30,13 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
-    return NextResponse.json({ teamsAndTournaments }, { status: 200 });
+    return NextResponse.json(
+      {
+        team: teamsAndTournaments.brawlStarsTeam,
+        tournaments: teamsAndTournaments.brawlStarsTournaments,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -12,8 +12,17 @@ const Navbar = () => {
   const pathname = usePathname(); // Get current path
   const { data: session } = useSession();
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: "/" });
+  const handleSignOut = async () => {
+    console.log("sign out button clicked");
+
+    try {
+      await signOut({ callbackUrl: "/" });
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+  const handleSignIn = () => {
+    router.push("/auth");
   };
 
   const links = [
@@ -46,9 +55,9 @@ const Navbar = () => {
               </div>
             ))}
             {session ? (
-              <Button text="Sign Out" onClick={handleSignOut} link={"/"} />
+              <Button text="Sign Out" onClick={handleSignOut} />
             ) : (
-              <Button text="Sign In" link="/api/auth/signin" />
+              <Button text="Sign In" onClick={handleSignIn} />
             )}
           </div>
         </div>

@@ -11,7 +11,7 @@ const TeamSchema = new mongoose.Schema({
       "valorant",
       "apex-legends",
       "csgo",
-      "league of legends",
+      "league-of-legends",
     ],
   },
   players: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
