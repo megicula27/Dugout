@@ -16,8 +16,8 @@ export default function TeamDetails({ team, tournaments }) {
           <CardContent>
             <h3 className="font-semibold mb-2">Team Members:</h3>
             <ul className="list-disc list-inside">
-              {team.members.map((member, index) => (
-                <li key={index}>{member}</li>
+              {team[0]?.players?.map((player, index) => (
+                <li key={index}>{player.username}</li>
               ))}
             </ul>
           </CardContent>

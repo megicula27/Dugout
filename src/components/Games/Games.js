@@ -36,6 +36,8 @@ export default function GamePage() {
       );
 
       // Extract data from the response
+      console.log(response.data);
+
       const { team, tournaments } = response.data;
 
       // Update state with fetched data

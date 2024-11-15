@@ -13,8 +13,6 @@ const Navbar = () => {
   const { data: session } = useSession();
 
   const handleSignOut = async () => {
-    console.log("sign out button clicked");
-
     try {
       await signOut({ callbackUrl: "/" });
     } catch (error) {

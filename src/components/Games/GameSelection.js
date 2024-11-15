@@ -7,7 +7,7 @@ const featuredGames = [
   { id: 1, name: "valorant", image: "/homepage/valorant.jpeg" },
   { id: 2, name: "brawl-stars", image: "/homepage/brawlStars.jpeg" },
   { id: 3, name: "apex-legends", image: "/homepage/apex-legends.jpg" },
-  { id: 4, name: "csgo", image: "/homepage/csgo.jpeg" },
+  { id: 4, name: "csgo", image: "/homepage/csgo.jpg" },
   { id: 5, name: "league-of-legends", image: "/homepage/LeagueofLegends.jpeg" },
 ];
 

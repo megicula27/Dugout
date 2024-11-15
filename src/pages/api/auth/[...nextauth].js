@@ -58,12 +58,12 @@ const options = {
       if (account.provider === "google") {
         // Check if user exists in MongoDB
         const existingUser = await User.findOne({ email: user.email });
+
         if (!existingUser) {
           // Create a new MongoDB user document with default fields
-
           const uid = generateUserId();
 
-          await User.create({
+          const newUser = await User.create({
             uid,
             email: user.email,
             username: user.name,
@@ -71,10 +71,17 @@ const options = {
             teams: [], // Default teams array
             games: [], // Default games array
           });
+
+          // Assign the newly created user's _id to the user object
+          user.id = newUser._id.toString(); // Ensure user.id is a string for consistency
+        } else {
+          // For existing users, assign their MongoDB _id to the user object
+          user.id = existingUser._id.toString(); // Ensure user.id is a string for consistency
         }
       }
       return true;
     },
+
     async jwt({ token, user }) {
       // Persist additional user information in token
       if (user) {
@@ -82,7 +89,6 @@ const options = {
         token.name = user.name;
         token.email = user.email;
       }
-      console.log(user);
 
       return token;
     },
@@ -123,7 +129,6 @@ const options = {
       // Retrieve the token manually
 
       // If we have a valid token, update the active status in the database
-      console.log("sign out was called ");
 
       if (token) {
         const userFromDB = await User.findOne({ email: token.email }).select(
