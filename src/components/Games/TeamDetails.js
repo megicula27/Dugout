@@ -44,7 +44,9 @@ export default function TeamDetails({ team, tournaments }) {
                 ))}
               </ul>
             ) : (
-              <p>No tournaments joined yet.</p>
+              <p>
+                No tournaments joined yet. I see you are not the motivated one
+              </p>
             )}
           </CardContent>
         </Card>
