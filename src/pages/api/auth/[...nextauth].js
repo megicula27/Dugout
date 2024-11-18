@@ -131,7 +131,7 @@ const options = {
       // If we have a valid token, update the active status in the database
 
       if (token) {
-        const userFromDB = await User.findOne({ email: token.email }).select(
+        const userFromDB = await User.findById({ _id: token.id }).select(
           "email activeStatus"
         );
 

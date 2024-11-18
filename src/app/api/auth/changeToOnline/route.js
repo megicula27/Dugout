@@ -14,7 +14,7 @@ export const POST = async (req) => {
 
     await dbConnect();
 
-    const userFromDB = await User.findOne({ email: token.email }).select(
+    const userFromDB = await User.findById({ _id: token.id }).select(
       "email activeStatus"
     );
     if (userFromDB) {

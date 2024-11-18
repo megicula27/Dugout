@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
   await dbConnect();
   const { id } = await request.json();
-
   try {
     // Find user with selected fields
     const user = await User.findById(id)
