@@ -2,6 +2,7 @@
 import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
 import { NextResponse } from "next/server";
+import Team from "@/models/Teams/Teams";
 
 export async function POST(req) {
   try {
@@ -24,7 +25,7 @@ export async function POST(req) {
         populate: {
           path: "players",
           model: "User",
-          select: "username",
+          select: "username uid",
         },
       })
       .exec();

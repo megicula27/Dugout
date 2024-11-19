@@ -13,10 +13,10 @@ const HasTeams = ({ userTeam }) => {
     <section className="has-teams-container">
       <Card>
         <CardHeader>
-          <CardTitle>Your Team</CardTitle>
+          <CardTitle>{userTeam.game}</CardTitle>
         </CardHeader>
         <CardContent>
-          {userTeam.length > 0 ? (
+          {userTeam ? (
             <div>
               <p className="team-name">{userTeam.name}</p>
               {userTeam.game && (
@@ -28,9 +28,11 @@ const HasTeams = ({ userTeam }) => {
               <div className="team-stats">
                 <div className="stat-item">
                   <Users className="stat-icon" />
-                  <span>
-                    {userTeam.players.map((player) => player.username)}
-                  </span>
+                  <ul>
+                    {userTeam.players.map((player) => (
+                      <li key={player.uid}>{player.username}</li>
+                    ))}
+                  </ul>
                 </div>
                 <div className="stat-item">
                   <Trophy className="stat-icon" />

@@ -18,21 +18,21 @@ export default function Teams() {
         });
 
         if (responseTeam.status === 200) {
-          console.log(responseTeam.data);
+          // console.log(responseTeam.data.teams);
 
-          setUserTeam(responseTeam.data);
+          setUserTeam(responseTeam.data.teams);
         }
 
-        const responseTournament = await axios.get("/api/users/getTournament", {
-          params: { userId: session?.user?.id },
-        });
+        // const responseTournament = await axios.post(
+        //   "/api/users/getTournament",
+        //   {
+        //     userId: session?.user?.id, // Send `userId` in the request body
+        //   }
+        // );
 
-        if (responseTournament.status === 200) {
-          setUpcomingMatches(responseTournament.data.tournament);
-        }
-        console.log(
-          responseTeam.data.team + " " + responseTournament.data.tournament
-        );
+        // if (responseTournament.status === 200) {
+        //   setUpcomingMatches(responseTournament.data.tournament);
+        // }
       } catch (error) {
         console.error(error.message || error);
       }
@@ -49,12 +49,12 @@ export default function Teams() {
 
       {/* Section 1: Current Team or Create/Join Options */}
       {userTeam.length > 0 &&
-        userTeam[0].map((team) => <HasTeams key={team.uid} userTeam={team} />)}
+        userTeam.map((team) => <HasTeams key={team.uid} userTeam={team} />)}
 
       {/* Section 2: Team Statistics and Upcoming Matches */}
-      {userTeam && (
+      {/* {userTeam && (
         <TeamStats userTeam={userTeam} upcomingMatches={upcomingMatches} />
-      )}
+      )} */}
     </div>
   );
 }

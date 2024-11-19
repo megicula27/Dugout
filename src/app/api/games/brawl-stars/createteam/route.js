@@ -37,7 +37,6 @@ export async function POST(req, { params }) {
     await dbConnect();
 
     const { teamName, userId } = await req.json();
-    console.log("i was here asloooooooooooooooo" + userId + "and" + teamName);
     // Input validation
     if (!teamName || !userId) {
       return NextResponse.json(
@@ -94,7 +93,7 @@ export async function POST(req, { params }) {
       uid,
       teamName,
       players,
-      game: "brawl-stars",
+      game: "Brawl Stars",
     });
 
     // Update user's teams
