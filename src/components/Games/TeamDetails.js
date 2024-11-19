@@ -11,12 +11,12 @@ export default function TeamDetails({ team, tournaments }) {
       <TabsContent value="team">
         <Card>
           <CardHeader>
-            <CardTitle>{team.name}</CardTitle>
+            <CardTitle>{team.teamName}</CardTitle>
           </CardHeader>
           <CardContent>
             <h3 className="font-semibold mb-2">Team Members:</h3>
             <ul className="list-disc list-inside">
-              {team[0]?.players?.map((player, index) => (
+              {team?.players?.map((player, index) => (
                 <li key={index}>{player.username}</li>
               ))}
             </ul>
