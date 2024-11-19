@@ -2,17 +2,16 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-// Import Font Awesome components
+import { toast } from "react-hot-toast"; // Import toast
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faGoogle,
   faFacebookF,
   faLinkedinIn,
 } from "@fortawesome/free-brands-svg-icons";
-// Import Font Awesome config
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
-// Prevent Font Awesome from adding its CSS since we did it manually above
+
 config.autoAddCss = false;
 
 const SignInForm = () => {
@@ -46,11 +45,14 @@ const SignInForm = () => {
 
       if (result?.error) {
         setError(result.error);
+        toast.error(result.error || "Sign-in failed. Please try again."); // Failure notification
       } else {
+        toast.success("Signed in successfully!"); // Success notification
         router.push("/");
       }
     } catch (err) {
       setError("Failed to sign in. Please try again.");
+      toast.error("An unexpected error occurred. Please try again."); // Failure notification for exceptions
       console.error("Sign-in error:", err);
     } finally {
       setIsLoading(false);
@@ -61,8 +63,10 @@ const SignInForm = () => {
     try {
       setIsLoading(true);
       await signIn("google", { callbackUrl: "/" });
+      toast.success("Signed in with Google successfully!"); // Success notification
     } catch (err) {
       setError("Failed to sign in with Google. Please try again.");
+      toast.error("Google sign-in failed. Please try again."); // Failure notification
       console.error("Google sign-in error:", err);
     } finally {
       setIsLoading(false);

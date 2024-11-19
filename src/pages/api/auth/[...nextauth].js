@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import User from "@/models/users/User"; // Ensure this is your Mongoose user model
 import dbConnect from "@/lib/database/mongo";
 import { generateUserId } from "@/utils/idGenerator";
-
+import toast from "react-hot-toast";
 const options = {
   providers: [
     // Google OAuth Provider
@@ -124,6 +124,8 @@ const options = {
   },
   events: {
     signOut: async ({ token }) => {
+      toast.success("You have signed out successfully!");
+
       await dbConnect(); // Ensure database connection is established
 
       // Retrieve the token manually

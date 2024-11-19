@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import axios from "axios";
+import { toast } from "react-hot-toast"; // Import toast
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faGoogle,
@@ -29,6 +30,8 @@ const SignUpForm = () => {
       const res = await axios.post("/api/auth/signup", values);
 
       if (res.status === 201) {
+        toast.success("Account created successfully! Signing you in..."); // Success notification for sign-up
+
         const result = await signIn("credentials", {
           redirect: false,
           email: values.email,
@@ -37,13 +40,17 @@ const SignUpForm = () => {
 
         if (result?.error) {
           setError(result.error);
+          toast.error(result.error || "Failed to sign in after registration."); // Failure notification for sign-in
         } else {
+          toast.success("Signed in successfully!"); // Success notification for sign-in
           router.push("/");
         }
       } else if (res.status === 400) {
         setError(res.data.message);
+        toast.error(res.data.message || "Failed to create account."); // Failure notification
       } else {
         setError("Failed to create account. Please try again.");
+        toast.error("Failed to create account. Please try again."); // Generic failure notification
       }
     } catch (error) {
       console.error("Signup error:", error);
@@ -51,6 +58,10 @@ const SignUpForm = () => {
         error.response?.data?.message ||
           "An unexpected error occurred. Please try again later."
       );
+      toast.error(
+        error.response?.data?.message ||
+          "An unexpected error occurred. Please try again later."
+      ); // Failure notification for exceptions
     } finally {
       setIsLoading(false);
     }
@@ -60,8 +71,10 @@ const SignUpForm = () => {
     try {
       setIsLoading(true);
       await signIn("google", { callbackUrl: "/" });
+      toast.success("Signed in with Google successfully!"); // Success notification
     } catch (err) {
       setError("Failed to sign in with Google. Please try again.");
+      toast.error("Google sign-in failed. Please try again."); // Failure notification
       console.error("Google sign-in error:", err);
     } finally {
       setIsLoading(false);

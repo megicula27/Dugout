@@ -1,6 +1,6 @@
 // src/app/layout.js
 import { Inter } from "next/font/google";
-
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import AuthProvider from "@/provider/AuthProvider";
 import ChangeStatusOnUnload from "@/provider/ChangeStatusOnUnload";
@@ -19,6 +19,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
+          <Toaster position="top-right" reverseOrder={false} />
           <ChangeStatusOnLoad />
           <ChangeStatusOnUnload />
 

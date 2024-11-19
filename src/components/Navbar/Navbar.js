@@ -6,6 +6,7 @@ import { Home, Gamepad, Trophy, Users, UserPlus, LogOut } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Glitch from "../Glitch/Glitch";
 import Button from "../Button/Button";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const router = useRouter();
@@ -15,6 +16,7 @@ const Navbar = () => {
   const handleSignOut = async () => {
     try {
       await signOut({ callbackUrl: "/" });
+      toast.success("You have signed out successfully!");
     } catch (error) {
       console.error("Error signing out:", error);
     }
