@@ -9,15 +9,13 @@ const UserSchema = new mongoose.Schema(
     avatar: String,
     teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Teams" }],
     tournaments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tournaments" }],
-    brawlStarsTeam: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "TeamBrawl" },
-    ],
+    brawlStarsTeam: { type: mongoose.Schema.Types.ObjectId, ref: "TeamBrawl" },
+
     brawlStarsTournaments: [
       { type: mongoose.Schema.Types.ObjectId, ref: "TournamentBrawl" },
     ],
-    valorantTeam: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "TeamValorant" },
-    ],
+    valorantTeam: { type: mongoose.Schema.Types.ObjectId, ref: "TeamValorant" },
+
     valorantTournaments: [
       { type: mongoose.Schema.Types.ObjectId, ref: "TournamentValorant" },
     ],

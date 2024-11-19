@@ -1,7 +1,8 @@
 import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
 import { NextResponse } from "next/server";
-
+import TeamBrawl from "@/models/Teams/TeamBrawl";
+// import TournamentBrawl from "@/models/Tournaments/TournamentBrawl";
 export async function POST(request) {
   await dbConnect();
   const { id } = await request.json();
@@ -22,18 +23,21 @@ export async function POST(request) {
     };
 
     // Populate `brawlStarsTeam` if it exists
-    if (user.brawlStarsTeam && user.brawlStarsTeam.length > 0) {
-      const populatedTeam = await User.populate(user, {
+
+    try {
+      const populatedUser = await user.populate({
         path: "brawlStarsTeam",
         model: "TeamBrawl",
-        select: "name players game createdAt",
+        select: "teamName players",
         populate: {
           path: "players",
           model: "User",
           select: "username",
         },
       });
-      response.team = populatedTeam.brawlStarsTeam;
+      response.team = populatedUser.brawlStarsTeam;
+    } catch (error) {
+      console.error("Error during population:", error.message);
     }
 
     // Populate `brawlStarsTournaments` if they exist

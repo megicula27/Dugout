@@ -18,7 +18,9 @@ export default function Teams() {
         });
 
         if (responseTeam.status === 200) {
-          setUserTeam(responseTeam.data.team);
+          console.log(responseTeam.data);
+
+          setUserTeam(responseTeam.data);
         }
 
         const responseTournament = await axios.get("/api/users/getTournament", {
@@ -46,7 +48,8 @@ export default function Teams() {
       <h1 className="text-3xl font-bold mb-8">Team Management</h1>
 
       {/* Section 1: Current Team or Create/Join Options */}
-      <HasTeams userTeam={userTeam} />
+      {userTeam.length > 0 &&
+        userTeam[0].map((team) => <HasTeams key={team.uid} userTeam={team} />)}
 
       {/* Section 2: Team Statistics and Upcoming Matches */}
       {userTeam && (

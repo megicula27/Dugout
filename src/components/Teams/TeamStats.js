@@ -31,7 +31,8 @@ const TeamStats = ({ userTeam, upcomingMatches }) => {
                       <span>Members</span>
                     </div>
                     <span className="stat-value">
-                      {userTeam.players.map((player) => player.username)}
+                      {userTeam.players.length > 0 &&
+                        userTeam.players.map((player) => player.username)}
                     </span>{" "}
                     {/* TODO yahan pe shayad userTeam.players.username hoga*/}
                   </CardContent>
