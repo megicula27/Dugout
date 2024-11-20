@@ -14,6 +14,17 @@ const TeamSchema = new mongoose.Schema({
       "League of Legends",
     ],
   },
+  tag: {
+    type: String,
+    required: true,
+    enum: [
+      "brawl-stars",
+      "valorant",
+      "apex-legends",
+      "csgo",
+      "league-of-legends",
+    ],
+  },
   players: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
   createdAt: { type: Date, default: Date.now },

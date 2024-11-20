@@ -124,8 +124,6 @@ const options = {
   },
   events: {
     signOut: async ({ token }) => {
-      toast.success("You have signed out successfully!");
-
       await dbConnect(); // Ensure database connection is established
 
       // Retrieve the token manually
