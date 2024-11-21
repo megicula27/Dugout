@@ -2,12 +2,12 @@
 import React from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Trophy, Users } from "lucide-react";
-import "@/styles/has_teams.css"; // Import the scoped CSS file
-import { useRouter } from "next/navigation"; // Adjusted import
+import { Trophy, Users, LogOut } from "lucide-react";
+import "@/styles/has_teams.css";
+import { useRouter } from "next/navigation";
 
-const HasTeams = ({ userTeam }) => {
-  const router = useRouter(); // Using useRouter hook
+const HasTeams = ({ userTeam, teamLeave }) => {
+  const router = useRouter();
 
   return (
     <section className="has-teams-container">
@@ -40,6 +40,16 @@ const HasTeams = ({ userTeam }) => {
                     {userTeam.wins}W - {userTeam.losses}L
                   </span>
                 </div>
+              </div>
+              <div className="mt-4 flex justify-center">
+                <Button
+                  variant="destructive"
+                  onClick={teamLeave}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut size={16} />
+                  Leave Team
+                </Button>
               </div>
             </div>
           ) : (

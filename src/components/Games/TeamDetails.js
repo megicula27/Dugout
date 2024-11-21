@@ -1,7 +1,8 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 
-export default function TeamDetails({ team, tournaments }) {
+export default function TeamDetails({ team, tournaments, leaveTeam }) {
   return (
     <Tabs defaultValue="team" className="w-full">
       <TabsList>
@@ -10,8 +11,11 @@ export default function TeamDetails({ team, tournaments }) {
       </TabsList>
       <TabsContent value="team">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>{team.teamName}</CardTitle>
+            <Button variant="destructive" onClick={leaveTeam} className="ml-4">
+              Leave Team
+            </Button>
           </CardHeader>
           <CardContent>
             <h3 className="font-semibold mb-2">Team Members:</h3>

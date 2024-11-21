@@ -26,7 +26,9 @@ export default function Teams() {
           setUserTeam(responseTeam.data.teams);
 
           // Success notification when teams are fetched
-          showSuccessNotification("Teams fetched successfully");
+          if (responseTeam.data.teams.length > 0)
+            showSuccessNotification("Teams fetched successfully");
+          else showCustomNotification("You are not part of any team");
         }
       } catch (error) {
         // Error notification if team fetch fails
@@ -50,14 +52,38 @@ export default function Teams() {
       showCustomNotification("Please log in to view your teams");
     }
   }, [session]);
+  const handleTeamLeave = async () => {
+    try {
+      if (!session) {
+        showErrorNotification("User is not logged in.");
+        return;
+      }
 
+      const response = await axios.post(`/api/games/${gameName}/leaveteam`, {
+        userId: session.user.id,
+      });
+
+      setUserTeam(null);
+
+      showSuccessNotification("You successfully left the team.");
+    } catch (error) {
+      console.error("Error while leaving the team:", error);
+      showErrorNotification("Failed to leave the team. Please try again.");
+    }
+  };
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Team Management</h1>
 
       {/* Section 1: Current Team or Create/Join Options */}
       {userTeam.length > 0 ? (
-        userTeam.map((team) => <HasTeams key={team.uid} userTeam={team} />)
+        userTeam.map((team) => (
+          <HasTeams
+            key={team.uid}
+            userTeam={team}
+            teamLeave={handleTeamLeave}
+          />
+        ))
       ) : (
         <div className="text-gray-500">
           No teams found. Create or join a team to get started.

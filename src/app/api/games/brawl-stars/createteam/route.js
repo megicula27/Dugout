@@ -93,12 +93,13 @@ export async function POST(req, { params }) {
       uid,
       teamName,
       players,
+      tag: "brawl-stars",
       game: "Brawl Stars",
     });
 
     // Update user's teams
     user.teams.push(generalTeam._id); // Use the directly fetched `ObjectId` from the database
-    user.brawlStarsTeam.push(newTeam._id);
+    user.brawlStarsTeam = newTeam._id;
 
     const updatedUser = await user.save();
     // Populate the created team and user's updated teams and brawlStarsTeam

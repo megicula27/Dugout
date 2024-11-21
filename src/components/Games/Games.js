@@ -98,16 +98,41 @@ export default function GamePage() {
       showErrorNotification("Failed to join the team. Please try again.");
     }
   };
+  const handleTeamLeave = async () => {
+    try {
+      if (!session) {
+        showErrorNotification("User is not logged in.");
+        return;
+      }
 
+      const response = await axios.post(
+        `/api/games/${selectedGame}/leaveteam`,
+        {
+          userId: session.user.id,
+        }
+      );
+
+      setUserTeam(null);
+
+      showSuccessNotification("You successfully left the team.");
+    } catch (error) {
+      console.error("Error while leaving the team:", error);
+      showErrorNotification("Failed to leave the team. Please try again.");
+    }
+  };
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className=" mx-auto px-4 py-4">
       <h1 className="text-3xl font-bold mb-6">
         {selectedGame ? selectedGame.name : "Featured Games"}
       </h1>
       {!selectedGame ? (
         <GameSelection onGameSelect={handleGameSelect} />
       ) : userTeam ? (
-        <TeamDetails team={userTeam} tournaments={tournaments} />
+        <TeamDetails
+          team={userTeam}
+          tournaments={tournaments}
+          leaveTeam={handleTeamLeave}
+        />
       ) : (
         <CreateOrJoin
           selectedGame={selectedGame}
