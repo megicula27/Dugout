@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const tournamentSchema = new Schema({
+const tournamentSchema = new mongoose.Schema({
   uid: {
     type: String,
     required: true,

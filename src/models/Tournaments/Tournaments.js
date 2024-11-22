@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const tournamentSchema = new Schema({
+const tournamentSchema = new mongoose.Schema({
   uid: {
     type: String,
     required: true,
@@ -47,7 +47,18 @@ const tournamentSchema = new Schema({
       "valorant",
       "apex-legends",
       "csgo",
-      "league of legends",
+      "league-of-legends",
+    ],
+  },
+  tag: {
+    type: String,
+    required: true,
+    enum: [
+      "Brawl Stars",
+      "Valorant",
+      "Apex Legends",
+      "CSGO",
+      "League of Legends",
     ],
   },
 });

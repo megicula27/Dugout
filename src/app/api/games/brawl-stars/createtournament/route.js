@@ -1,17 +1,16 @@
-// pages/api/games/[gameName]/createtournament.js
+// src/app/api/games/[gameName]/createtournament.js
 import dbConnect from "@/lib/database/mongo";
 import TournamentBrawl from "@/models/Tournaments/TournamentBrawl";
 import Tournaments from "@/models/Tournaments/Tournaments";
-import User from "@/models/users/User";
 import { generateTournamentId } from "@/utils/idGenerator";
 import { NextResponse } from "next/server";
 
-export async function POST(req, { params }) {
+export async function POST(req) {
+  console.log("i was hereweeeeeeeeeeeeeeeeeeeee");
   try {
     await dbConnect();
 
     const {
-      userId,
       tournamentName,
       startDate,
       endDate,
@@ -20,22 +19,13 @@ export async function POST(req, { params }) {
       tournamentSize,
     } = await req.json();
 
-    const { gameName } = params;
-
     // Input validation
-    if (
-      !userId ||
-      !tournamentName ||
-      !startDate ||
-      !endDate ||
-      !tournamentSize
-    ) {
+    if (!tournamentName || !startDate || !endDate || !tournamentSize) {
       return NextResponse.json(
         {
           success: false,
           error: "Missing required fields",
           requiredFields: [
-            "userId",
             "tournamentName",
             "startDate",
             "endDate",
@@ -47,6 +37,7 @@ export async function POST(req, { params }) {
     }
 
     // Validate dates
+
     const start = new Date(startDate);
     const end = new Date(endDate);
 
@@ -63,16 +54,6 @@ export async function POST(req, { params }) {
     }
 
     // Check if user exists
-    const user = await User.findById(userId);
-    if (!user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "User not found",
-        },
-        { status: 404 }
-      );
-    }
 
     // Generate tournament ID
     const uid = generateTournamentId();
@@ -94,7 +75,8 @@ export async function POST(req, { params }) {
     // Create general tournament
     const generalTournament = await Tournaments.create({
       ...tournamentData,
-      game: gameName,
+      game: "brawl-stars",
+      tag: "Brawl Stars",
     });
 
     if (!newTournament || !generalTournament) {
@@ -118,7 +100,7 @@ export async function POST(req, { params }) {
         tournament: {
           uid,
           name: tournamentName,
-          game: gameName || "brawl-stars",
+          game: "brawl-stars",
           startDate,
           endDate,
           description,
