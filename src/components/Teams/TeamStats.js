@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/Table";
+} from "@/components/ui/table";
 import { Trophy, Users } from "lucide-react";
 import "@/styles/TeamStats.css"; // Import the scoped CSS file
 

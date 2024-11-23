@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Trophy, Users, Search } from "lucide-react";
 
 const Features = () => {

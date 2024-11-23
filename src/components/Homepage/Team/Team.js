@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 
 export default function Team() {

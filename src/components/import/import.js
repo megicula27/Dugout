@@ -13,3 +13,6 @@ export { default as NavHamburger } from "@/components/Navbar/NavHamburger";
 export { default as CreateOrJoinTeam } from "@/components/Games/CreateOrJoinTeam";
 export { default as Games } from "@/components/Games/Games";
 export { default as Tournament } from "@/components/Tournament/Tournament";
+export { default as CreateTournament } from "@/components/Tournament/Create";
+export { default as TournamentList } from "@/components/Tournament/TournamentList";
+export { default as TournamentFilter } from "@/components/Tournament/TournamentFilters";

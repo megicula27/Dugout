@@ -5,7 +5,7 @@ import { Menu, X, HeartHandshake } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import "@/styles/nav-hamburger.css";
 
 export default function Component() {
