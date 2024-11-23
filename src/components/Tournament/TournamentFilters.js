@@ -1,14 +1,20 @@
 "use client";
 import React, { useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import {
+  Check,
+  ChevronDown,
+  Filter,
+  SlidersHorizontal,
+  Plus,
+  Minus,
+} from "lucide-react";
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Sheet,
   SheetContent,
@@ -17,17 +23,17 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
-import { Filter, SlidersHorizontal } from "lucide-react";
 import TournamentList from "./TournamentList";
+
 const TournamentFiltersAndList = () => {
   const { data: session } = useSession();
   const [tournaments, setTournaments] = useState([]);
@@ -45,6 +51,9 @@ const TournamentFiltersAndList = () => {
     typeof window !== "undefined" ? window.innerWidth < 768 : false
   );
 
+  const [gameOpen, setGameOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+
   const games = [
     { value: "all", label: "All Games" },
     { value: "brawl-stars", label: "Brawl Stars" },
@@ -59,6 +68,28 @@ const TournamentFiltersAndList = () => {
     { value: "prize", label: "Prize Pool" },
     { value: "tournamentSize", label: "Tournament Size" },
   ];
+
+  const participationOptions = [
+    { value: null, label: "All Tournaments" },
+    { value: true, label: "Joined Only" },
+    { value: false, label: "Not Joined" },
+  ];
+
+  const handlePrizeChange = (value) => {
+    const numValue = parseInt(value) || 0;
+    if (numValue >= 0 && numValue <= 1000000) {
+      handleFilterChange("prize", numValue);
+    }
+  };
+
+  const incrementPrize = () => {
+    handlePrizeChange(filters.prize + 1000);
+  };
+
+  const decrementPrize = () => {
+    handlePrizeChange(filters.prize - 1000);
+  };
+
   const fetchTeamId = async (game) => {
     try {
       if (game === "all" || !session?.user?.id) return null;
@@ -75,17 +106,16 @@ const TournamentFiltersAndList = () => {
       return null;
     }
   };
+
   const fetchTournaments = useCallback(async (filterParams, currentTeamId) => {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams();
 
-      // Add all filter params regardless of value
       Object.entries(filterParams).forEach(([key, value]) => {
         queryParams.append(key, value?.toString() ?? "");
       });
 
-      // Add teamId to query params if available
       if (currentTeamId) {
         queryParams.append("teamId", currentTeamId);
       }
@@ -115,11 +145,9 @@ const TournamentFiltersAndList = () => {
   };
 
   const handleApplyFilters = async () => {
-    // First, fetch team ID if game is selected
     if (filters.game !== "all") {
       const newTeamId = await fetchTeamId(filters.game);
       setTeamId(newTeamId);
-      // Fetch tournaments with the new team ID
       await fetchTournaments(filters, newTeamId);
     } else {
       setTeamId(null);
@@ -127,90 +155,175 @@ const TournamentFiltersAndList = () => {
     }
   };
 
+  const getSelectedLabel = (options, value) => {
+    return (
+      options.find((option) => option.value === value)?.label || "Select..."
+    );
+  };
+
   const FilterContent = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label>Game</Label>
-        <Select
-          value={filters.game}
-          onValueChange={(value) => handleFilterChange("game", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select game" />
-          </SelectTrigger>
-          <SelectContent>
+        <Label className="text-foreground">Game</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              className="w-full justify-between bg-background text-foreground"
+            >
+              {filters.game === "all"
+                ? "All Games"
+                : games.find((g) => g.value === filters.game)?.label}
+              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className=" p-0 bg-background">
             {games.map((game) => (
-              <SelectItem key={game.value} value={game.value}>
+              <Button
+                key={game.value}
+                variant="ghost"
+                className={cn(
+                  "relative w-full justify-start text-foreground hover:bg-accent hover:text-accent-foreground pl-8",
+                  filters.game === game.value && "bg-accent"
+                )}
+                onClick={() => handleFilterChange("game", game.value)}
+              >
+                <Check
+                  className={cn(
+                    "absolute left-2 w-4 h-4",
+                    filters.game === game.value ? "opacity-100" : "opacity-0"
+                  )}
+                />
                 {game.label}
-              </SelectItem>
+              </Button>
             ))}
-          </SelectContent>
-        </Select>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="space-y-2">
-        <Label>Sort By</Label>
-        <Select
-          value={filters.sortBy}
-          onValueChange={(value) => handleFilterChange("sortBy", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
+        <Label className="text-foreground">Sort By</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              className="w-full justify-between bg-background text-foreground"
+            >
+              {
+                sortOptions.find((option) => option.value === filters.sortBy)
+                  ?.label
+              }
+              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0 bg-background">
             {sortOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <Button
+                key={option.value}
+                variant="ghost"
+                className={cn(
+                  "relative w-full justify-start text-foreground hover:bg-accent hover:text-accent-foreground pl-8",
+                  filters.sortBy === option.value && "bg-accent"
+                )}
+                onClick={() => handleFilterChange("sortBy", option.value)}
+              >
+                <Check
+                  className={cn(
+                    "absolute left-2 w-4 h-4",
+                    filters.sortBy === option.value
+                      ? "opacity-100"
+                      : "opacity-0"
+                  )}
+                />
                 {option.label}
-              </SelectItem>
+              </Button>
             ))}
-          </SelectContent>
-        </Select>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="space-y-2">
-        <Label>Minimum Prize Pool ($)</Label>
-        <div className="pt-2">
-          <Slider
-            value={[filters.prize]}
-            onValueChange={([value]) => handleFilterChange("prize", value)}
-            max={10000}
-            step={100}
-            className="w-full"
+        <Label className="text-foreground">Minimum Prize Pool (₹)</Label>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={decrementPrize}
+            disabled={filters.prize <= 0}
+            className="h-8 w-8"
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+          <Input
+            type="number"
+            value={filters.prize}
+            onChange={(e) => handlePrizeChange(e.target.value)}
+            className="text-center"
+            min="0"
+            max="1000000"
           />
-          <div className="mt-1 text-sm text-gray-500">${filters.prize}</div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={incrementPrize}
+            disabled={filters.prize >= 1000000}
+            className="h-8 w-8"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="text-sm text-muted-foreground text-center">
+          ₹{filters.prize.toLocaleString()}
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Participation</Label>
-        <RadioGroup
-          value={filters.joined?.toString()}
-          onValueChange={(value) =>
-            handleFilterChange("joined", value === "null" ? null : value)
-          }
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="null" id="all" />
-            <Label htmlFor="all">All Tournaments</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="true" id="joined" />
-            <Label htmlFor="joined">Joined Only</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="false" id="not-joined" />
-            <Label htmlFor="not-joined">Not Joined</Label>
-          </div>
-        </RadioGroup>
+        <Label className="text-foreground">Participation</Label>
+        <div className="grid gap-2">
+          <Button
+            variant={filters.joined === null ? "default" : "outline"}
+            className={cn(
+              "w-full justify-start text-foreground",
+              filters.joined === null && "bg-primary text-primary-foreground"
+            )}
+            onClick={() => handleFilterChange("joined", null)}
+          >
+            All Tournaments
+          </Button>
+          <Button
+            variant={filters.joined === true ? "default" : "outline"}
+            className={cn(
+              "w-full justify-start text-foreground",
+              filters.joined === true && "bg-primary text-primary-foreground"
+            )}
+            onClick={() => handleFilterChange("joined", true)}
+          >
+            Joined Only
+          </Button>
+          <Button
+            variant={filters.joined === false ? "default" : "outline"}
+            className={cn(
+              "w-full justify-start text-foreground",
+              filters.joined === false && "bg-primary text-primary-foreground"
+            )}
+            onClick={() => handleFilterChange("joined", false)}
+          >
+            Not Joined
+          </Button>
+        </div>
       </div>
 
-      <Button className="w-full" onClick={handleApplyFilters}>
+      <Button
+        className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+        onClick={handleApplyFilters}
+      >
         Apply Filters
       </Button>
     </div>
   );
 
-  // Effect to fetch initial tournaments
   React.useEffect(() => {
     fetchTournaments(filters);
 
@@ -224,38 +337,43 @@ const TournamentFiltersAndList = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Tournaments</h1>
-
-        {isMobile ? (
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
-                <SlidersHorizontal className="h-4 w-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>Filters</SheetTitle>
-              </SheetHeader>
-              <div className="mt-4">
+      <div className="flex justify-between items-center mb-6 w-full">
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold">Tournaments</h1>
+        </div>
+        <div className="ml-auto">
+          {" "}
+          {/* This ensures the filter button stays on the far right */}
+          {isMobile ? (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <SlidersHorizontal className="h-4 w-4" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4">
+                  <FilterContent />
+                </div>
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Filter className="h-4 w-4" />
+                  Filters
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-80 p-4" align="end">
                 <FilterContent />
-              </div>
-            </SheetContent>
-          </Sheet>
-        ) : (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <Filter className="h-4 w-4" />
-                Filters
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80 p-4" align="end">
-              <FilterContent />
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -267,7 +385,6 @@ const TournamentFiltersAndList = () => {
           tournaments={tournaments}
           teamId={teamId}
           onJoinLeave={(tournamentId) => {
-            // Handle join/leave logic here
             console.log("Join/Leave tournament:", tournamentId);
           }}
         />
