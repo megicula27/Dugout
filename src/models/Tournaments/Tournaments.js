@@ -63,5 +63,6 @@ const tournamentSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.models.Team ||
+// Fix the model name in the export (changed from Team to Tournament)
+export default mongoose.models.Tournament ||
   mongoose.model("Tournament", tournamentSchema);

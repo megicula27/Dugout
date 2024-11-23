@@ -124,6 +124,7 @@ const TournamentFiltersAndList = () => {
         filterParams.game === "all"
           ? "/api/tournaments"
           : `/api/games/${filterParams.game}/tournaments`;
+      console.log(`Query----> ${endpoint}?${queryParams.toString()}`);
 
       const response = await fetch(`${endpoint}?${queryParams.toString()}`);
       const data = await response.json();
@@ -377,7 +378,7 @@ const TournamentFiltersAndList = () => {
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
+        <div className="flex justify-center items-center mx-auto h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>
       ) : (

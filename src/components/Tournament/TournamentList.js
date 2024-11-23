@@ -88,7 +88,6 @@ const TournamentList = ({ tournaments = [], teamId = null, onJoinLeave }) => {
               <CardTitle className="text-xl font-bold">
                 {tournament.name}
               </CardTitle>
-              {getStatusBadge(timeStates[tournament._id])}
             </div>
           </CardHeader>
           <CardContent className="flex-grow">
@@ -96,21 +95,20 @@ const TournamentList = ({ tournaments = [], teamId = null, onJoinLeave }) => {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Trophy className="w-4 h-4" />
-                <span className="font-semibold">${tournament.prize}</span>
+                <p className="font-semibold">₹{tournament.prize}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
-                <span>
+                <p>
                   {tournament.teams?.length || 0}/{tournament.tournamentSize}{" "}
                   Teams
-                </span>
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                <span>
-                  {new Date(tournament.startDate).toLocaleDateString()}
-                </span>
+                <p>{new Date(tournament.startDate).toLocaleDateString()}</p>
               </div>
+              {getStatusBadge(timeStates[tournament._id])}
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">

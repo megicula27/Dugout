@@ -1,4 +1,3 @@
-// src/app/api/games/[gameName]/createtournament.js
 import dbConnect from "@/lib/database/mongo";
 import TournamentBrawl from "@/models/Tournaments/TournamentBrawl";
 import Tournaments from "@/models/Tournaments/Tournaments";
@@ -6,7 +5,6 @@ import { generateTournamentId } from "@/utils/idGenerator";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
-  console.log("i was hereweeeeeeeeeeeeeeeeeeeee");
   try {
     await dbConnect();
 
@@ -37,7 +35,6 @@ export async function POST(req) {
     }
 
     // Validate dates
-
     const start = new Date(startDate);
     const end = new Date(endDate);
 
@@ -53,8 +50,6 @@ export async function POST(req) {
       );
     }
 
-    // Check if user exists
-
     // Generate tournament ID
     const uid = generateTournamentId();
 
@@ -67,17 +62,16 @@ export async function POST(req) {
       prize,
       tournamentSize,
       name: tournamentName,
+      status: "scheduled", // Add required field
+      game: "brawl-stars", // Ensure this matches enum exactly
+      tag: "Brawl Stars", // Ensure this matches enum exactly
     };
 
     // Create game-specific tournament
     const newTournament = await TournamentBrawl.create(tournamentData);
 
     // Create general tournament
-    const generalTournament = await Tournaments.create({
-      ...tournamentData,
-      game: "brawl-stars",
-      tag: "Brawl Stars",
-    });
+    const generalTournament = await Tournaments.create(tournamentData);
 
     if (!newTournament || !generalTournament) {
       // Rollback tournament creation if user update fails
@@ -98,14 +92,7 @@ export async function POST(req) {
         success: true,
         message: "Tournament created successfully",
         tournament: {
-          uid,
-          name: tournamentName,
-          game: "brawl-stars",
-          startDate,
-          endDate,
-          description,
-          prize,
-          tournamentSize,
+          ...tournamentData,
         },
       },
       { status: 201 }
