@@ -385,8 +385,8 @@ const TournamentFiltersAndList = () => {
         <TournamentList
           tournaments={tournaments}
           teamId={teamId}
-          onJoinLeave={(tournamentId) => {
-            console.log("Join/Leave tournament:", tournamentId);
+          onJoinLeave={(tournamentId, tournamentGame) => {
+            console.log("Join/Leave tournament:", tournamentId, tournamentGame);
           }}
         />
       )}

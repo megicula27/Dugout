@@ -118,16 +118,22 @@ const TournamentList = ({ tournaments = [], teamId = null, onJoinLeave }) => {
             >
               View Teams
             </Button>
-            {teamId && (
-              <Button
-                variant={
-                  tournament.teams?.includes(teamId) ? "destructive" : "default"
-                }
-                onClick={() => onJoinLeave(tournament._id)}
-              >
-                {tournament.teams?.includes(teamId) ? "Leave" : "Join"}
-              </Button>
-            )}
+
+            <Button
+              variant={
+                tournament.teams?.includes(teamId) ? "destructive" : "default"
+              }
+              onClick={() => handleJoinLeave(tournament._id, tournament.game)}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span>Loading...</span>
+              ) : tournament.teams?.includes(teamId) ? (
+                "Leave"
+              ) : (
+                "Join"
+              )}
+            </Button>
           </CardFooter>
         </Card>
       ))}
