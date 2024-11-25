@@ -1,7 +1,7 @@
 // pages/api/users/getTournaments.js
 import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
-// import Tournament from "@/models/Tournaments/Tournaments";
+import Tournament from "@/models/Tournaments/Tournaments";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {

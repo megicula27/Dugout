@@ -16,10 +16,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Clock, Trophy, Users } from "lucide-react";
-
-const TournamentList = ({ tournaments = [], teamId = null, onJoinLeave }) => {
+import { useSession } from "next-auth/react";
+import axios from "axios";
+const TournamentList = ({ tournaments = [], onJoinLeave }) => {
+  const { data: session } = useSession();
   const [selectedTournament, setSelectedTournament] = useState(null);
+  const [userTournaments, setUserTournaments] = useState(null);
   const [timeStates, setTimeStates] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const calculateTimeLeft = (startDate, endDate) => {
     const now = new Date().getTime();
@@ -65,6 +69,17 @@ const TournamentList = ({ tournaments = [], teamId = null, onJoinLeave }) => {
     return () => clearInterval(interval);
   }, [tournaments]);
 
+  useEffect(() => {
+    const getUserTournaments = async () => {
+      const data = await axios.post(`api/users/getTournaments`, {
+        userId: session?.user?.id,
+      });
+      console.log("from tournamentList", data.data.tournaments);
+      setUserTournaments(data.data.tournaments);
+    };
+
+    getUserTournaments();
+  }, []);
   const getStatusBadge = (timeState) => {
     if (!timeState) return null;
 
@@ -78,7 +93,18 @@ const TournamentList = ({ tournaments = [], teamId = null, onJoinLeave }) => {
       <Badge className={statusStyles[timeState.status]}>{timeState.text}</Badge>
     );
   };
-
+  const handleJoinLeave = async (tournamentId, game, action) => {
+    try {
+      setLoading(true);
+      await onJoinLeave(tournamentId, game, action);
+      // Optionally update UI or show success message
+    } catch (error) {
+      // Show error message to user
+      console.error("Failed to join/leave tournament:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
       {tournaments.map((tournament) => (
@@ -121,14 +147,22 @@ const TournamentList = ({ tournaments = [], teamId = null, onJoinLeave }) => {
 
             <Button
               variant={
-                tournament.teams?.includes(teamId) ? "destructive" : "default"
+                tournament.teams?.includes(teamName) ? "destructive" : "default"
               }
-              onClick={() => handleJoinLeave(tournament._id, tournament.game)}
-              disabled={isLoading}
+              onClick={() =>
+                handleJoinLeave(
+                  tournament._id,
+                  tournament.game,
+                  userTournaments.includes(tournament.uid) ? "Leave" : "Join"
+                )
+              }
+              disabled={loading}
             >
-              {isLoading ? (
-                <span>Loading...</span>
-              ) : tournament.teams?.includes(teamId) ? (
+              {loading ? (
+                <div className="flex justify-center items-center mx-auto h-64">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                </div>
+              ) : tournament.teams?.includes(teamName) ? (
                 "Leave"
               ) : (
                 "Join"
@@ -150,7 +184,7 @@ const TournamentList = ({ tournaments = [], teamId = null, onJoinLeave }) => {
             {selectedTournament?.teams?.length ? (
               selectedTournament.teams.map((team, index) => (
                 <div key={team} className="p-2 bg-gray-100 rounded">
-                  Team {index + 1}
+                  <p>{selectedTournament.teams.name}</p>
                 </div>
               ))
             ) : (
