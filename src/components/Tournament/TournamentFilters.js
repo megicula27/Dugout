@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import {
   Check,
@@ -27,32 +27,36 @@ import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import TournamentList from "./TournamentList";
+import axios from "axios";
+import {
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notifications";
+import { useRouter } from "next/navigation";
 
 const TournamentFiltersAndList = () => {
+  const router = useRouter();
   const { data: session } = useSession();
   const [tournaments, setTournaments] = useState([]);
-  const [teamId, setTeamId] = useState(null);
+  const [userTournaments, setUserTournaments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
     game: "all",
     sortBy: "startDate",
     prize: 0,
     joined: null,
+    active: null,
   });
 
   // Initialize with mobile detection
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.innerWidth < 768 : false
   );
-
-  const [gameOpen, setGameOpen] = useState(false);
-  const [sortOpen, setSortOpen] = useState(false);
 
   const games = [
     { value: "all", label: "All Games" },
@@ -90,80 +94,139 @@ const TournamentFiltersAndList = () => {
     handlePrizeChange(filters.prize - 1000);
   };
 
-  const fetchTeamId = async (game) => {
+  const fetchUserTournaments = async () => {
+    if (!session?.user?.id) return;
+
     try {
-      if (game === "all" || !session?.user?.id) return null;
+      const { data } = await axios.post(`/api/users/getTournaments`, {
+        userId: session.user.id,
+      });
 
-      const response = await fetch(`/api/games/${game}/teamAndTournaments`);
-      const data = await response.json();
-
-      if (data.success && data.data?.team) {
-        return data.data.team;
-      }
-      return null;
+      setUserTournaments(data.tournaments || []);
     } catch (error) {
-      console.error("Error fetching team:", error);
-      return null;
+      console.error("Error fetching user tournaments:", error);
     }
   };
 
-  const fetchTournaments = useCallback(async (filterParams, currentTeamId) => {
-    setLoading(true);
-    try {
-      const queryParams = new URLSearchParams();
+  const fetchTournaments = useCallback(
+    async (filterParams, currentTeamName) => {
+      setLoading(true);
+      try {
+        const queryParams = new URLSearchParams();
 
-      Object.entries(filterParams).forEach(([key, value]) => {
-        queryParams.append(key, value?.toString() ?? "");
-      });
+        Object.entries(filterParams).forEach(([key, value]) => {
+          queryParams.append(key, value?.toString() ?? "");
+        });
 
-      if (currentTeamId) {
-        queryParams.append("teamId", currentTeamId);
+        // if (currentTeamName) {
+        //   queryParams.append("teamName", currentTeamName);
+        // }
+
+        const endpoint =
+          filterParams.game === "all"
+            ? "/api/tournaments"
+            : `/api/games/${filterParams.game}/tournaments`;
+
+        const response = await fetch(`${endpoint}?${queryParams.toString()}`);
+        const data = await response.json();
+
+        if (data.success) {
+          setTournaments(data.data);
+        } else {
+          console.error("Failed to fetch tournaments:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching tournaments:", error);
+      } finally {
+        setLoading(false);
       }
+    },
+    []
+  );
+
+  const handleJoinLeave = async (tournamentId, tournamentGame, action) => {
+    try {
+      if (!session?.user?.id) {
+        showErrorNotification("Please login to perform this action");
+        return;
+      }
+
+      setLoading(true);
 
       const endpoint =
-        filterParams.game === "all"
-          ? "/api/tournaments"
-          : `/api/games/${filterParams.game}/tournaments`;
-      console.log(`Query----> ${endpoint}?${queryParams.toString()}`);
+        action === "Leave" ? "leavetournament" : "jointournament";
 
-      const response = await fetch(`${endpoint}?${queryParams.toString()}`);
-      const data = await response.json();
+      const response = await axios.post(
+        `/api/games/${tournamentGame}/${endpoint}`,
+        {
+          tournamentId: tournamentId,
+          userId: session.user.id,
+        }
+      );
 
-      if (data.success) {
-        setTournaments(data.data);
+      if (response.data.success) {
+        showSuccessNotification(
+          `Tournament ${action.toLowerCase()}ed successfully!`
+        );
+
+        // Refresh user tournaments and tournaments
+        await fetchUserTournaments();
+        await handleApplyFilters();
       } else {
-        console.error("Failed to fetch tournaments:", data.message);
+        showErrorNotification(
+          response.data.error || `Failed to ${action.toLowerCase()} tournament`
+        );
       }
     } catch (error) {
-      console.error("Error fetching tournaments:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        `Something went wrong while ${action.toLowerCase()}ing tournament`;
+
+      showErrorNotification(errorMessage);
+      console.error(`Error ${action.toLowerCase()}ing tournament:`, error);
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleApplyFilters = async () => {
     if (filters.game !== "all") {
-      const newTeamId = await fetchTeamId(filters.game);
-      setTeamId(newTeamId);
-      await fetchTournaments(filters, newTeamId);
+      const newTeamName = await fetchTeamName(filters.game);
+      await fetchTournaments(filters, newTeamName);
     } else {
-      setTeamId(null);
       await fetchTournaments(filters, null);
     }
   };
 
-  const getSelectedLabel = (options, value) => {
-    return (
-      options.find((option) => option.value === value)?.label || "Select..."
-    );
-  };
+  useEffect(() => {
+    // Fetch initial tournaments and user tournaments
+    fetchTournaments(filters);
+    fetchUserTournaments();
 
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
   const FilterContent = () => (
-    <div className="space-y-6">
+    <div
+      className="space-y-6 overflow-y-auto max-h-[100vh]"
+      style={{
+        overscrollBehavior: "contain",
+        scrollbarWidth: "thin",
+      }}
+    >
+      {/* Game Filter */}
       <div className="space-y-2">
         <Label className="text-foreground">Game</Label>
         <Popover>
@@ -179,7 +242,7 @@ const TournamentFiltersAndList = () => {
               <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=" p-0 bg-background">
+          <PopoverContent className="p-0 bg-background">
             {games.map((game) => (
               <Button
                 key={game.value}
@@ -203,6 +266,7 @@ const TournamentFiltersAndList = () => {
         </Popover>
       </div>
 
+      {/* Sort By Filter */}
       <div className="space-y-2">
         <Label className="text-foreground">Sort By</Label>
         <Popover>
@@ -245,6 +309,7 @@ const TournamentFiltersAndList = () => {
         </Popover>
       </div>
 
+      {/* Prize Pool Filter */}
       <div className="space-y-2">
         <Label className="text-foreground">Minimum Prize Pool (₹)</Label>
         <div className="flex items-center space-x-2">
@@ -280,6 +345,7 @@ const TournamentFiltersAndList = () => {
         </div>
       </div>
 
+      {/* Participation Filter */}
       <div className="space-y-2">
         <Label className="text-foreground">Participation</Label>
         <div className="grid gap-2">
@@ -316,6 +382,43 @@ const TournamentFiltersAndList = () => {
         </div>
       </div>
 
+      {/* Active Status Filter */}
+      <div className="space-y-2">
+        <Label className="text-foreground">Tournament Status</Label>
+        <div className="grid gap-2">
+          <Button
+            variant={filters.active === null ? "default" : "outline"}
+            className={cn(
+              "w-full justify-start text-foreground",
+              filters.active === null && "bg-primary text-primary-foreground"
+            )}
+            onClick={() => handleFilterChange("active", null)}
+          >
+            All Tournaments
+          </Button>
+          <Button
+            variant={filters.active === true ? "default" : "outline"}
+            className={cn(
+              "w-full justify-start text-foreground",
+              filters.active === true && "bg-primary text-primary-foreground"
+            )}
+            onClick={() => handleFilterChange("active", true)}
+          >
+            Active Tournaments
+          </Button>
+          <Button
+            variant={filters.active === false ? "default" : "outline"}
+            className={cn(
+              "w-full justify-start text-foreground",
+              filters.active === false && "bg-primary text-primary-foreground"
+            )}
+            onClick={() => handleFilterChange("active", false)}
+          >
+            Inactive Tournaments
+          </Button>
+        </div>
+      </div>
+
       <Button
         className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
         onClick={handleApplyFilters}
@@ -325,17 +428,6 @@ const TournamentFiltersAndList = () => {
     </div>
   );
 
-  React.useEffect(() => {
-    fetchTournaments(filters);
-
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6 w-full">
@@ -343,8 +435,6 @@ const TournamentFiltersAndList = () => {
           <h1 className="text-2xl font-bold">Tournaments</h1>
         </div>
         <div className="ml-auto">
-          {" "}
-          {/* This ensures the filter button stays on the far right */}
           {isMobile ? (
             <Sheet>
               <SheetTrigger asChild>
@@ -352,7 +442,13 @@ const TournamentFiltersAndList = () => {
                   <SlidersHorizontal className="h-4 w-4" />
                 </Button>
               </SheetTrigger>
-              <SheetContent>
+              <SheetContent
+                className="overflow-y-auto"
+                style={{
+                  overscrollBehavior: "contain",
+                  scrollbarWidth: "thin",
+                }}
+              >
                 <SheetHeader>
                   <SheetTitle>Filters</SheetTitle>
                 </SheetHeader>
@@ -369,7 +465,14 @@ const TournamentFiltersAndList = () => {
                   Filters
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-80 p-4" align="end">
+              <DropdownMenuContent
+                className="w-80 p-4 max-h-[80vh] overflow-y-auto"
+                align="end"
+                style={{
+                  overscrollBehavior: "contain",
+                  scrollbarWidth: "thin",
+                }}
+              >
                 <FilterContent />
               </DropdownMenuContent>
             </DropdownMenu>
@@ -382,17 +485,16 @@ const TournamentFiltersAndList = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>
       ) : (
-        <TournamentList
-          tournaments={tournaments}
-          onJoinLeave={(tournamentId, tournamentGame, action) => {
-            console.log(
-              "Join/Leave tournament:",
-              tournamentId,
-              tournamentGame,
-              action
-            );
-          }}
-        />
+        tournaments.map((tournament) => (
+          <TournamentList
+            key={tournament.id}
+            tournament={tournament}
+            userTournaments={userTournaments}
+            onJoinLeave={(tournamentId, tournamentGame, action) => {
+              handleJoinLeave(tournamentId, tournamentGame, action);
+            }}
+          />
+        ))
       )}
     </div>
   );

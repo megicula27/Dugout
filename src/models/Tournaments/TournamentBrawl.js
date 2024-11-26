@@ -21,7 +21,7 @@ const tournamentSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "TeamBrawl" }],
+  teams: [{ type: String }],
   startDate: {
     type: Date,
     required: true,
@@ -36,7 +36,7 @@ const tournamentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["scheduled", "completed"],
+    enum: ["scheduled", "live", "completed"],
     required: true,
     default: "scheduled",
   },

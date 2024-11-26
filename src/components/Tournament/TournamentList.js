@@ -15,16 +15,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Clock, Trophy, Users } from "lucide-react";
+import { Clock, Trophy, Users, Eye, Check } from "lucide-react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-const TournamentList = ({ tournaments = [], onJoinLeave }) => {
+
+const TournamentList = ({ tournament, userTournaments, onJoinLeave }) => {
   const { data: session } = useSession();
   const [selectedTournament, setSelectedTournament] = useState(null);
-  const [userTournaments, setUserTournaments] = useState(null);
-  const [timeStates, setTimeStates] = useState({});
+  const [timeState, setTimeState] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [teamName, setTeamName] = useState(null);
+  const [isJoined, setIsJoined] = useState();
   const calculateTimeLeft = (startDate, endDate) => {
     const now = new Date().getTime();
     const start = new Date(startDate).getTime();
@@ -50,37 +51,46 @@ const TournamentList = ({ tournaments = [], onJoinLeave }) => {
       return { status: "ended", text: "Ended" };
     }
   };
+  useEffect(() => {
+    const fetchTeamName = async (game) => {
+      try {
+        if (game === "all" || !session?.user?.id) return null;
+
+        const { data } = await axios.post(
+          `/api/games/${game}/teamAndTournaments`,
+          {
+            id: session.user?.id,
+          }
+        );
+        // console.log(data);
+
+        if (data.team?.teamName) {
+          setTeamName(data.team?.teamName);
+          setIsJoined(tournament?.teams?.includes(data.team?.teamName));
+        }
+      } catch (error) {
+        console.error("Error fetching team:", error);
+      }
+    };
+    fetchTeamName(tournament.game);
+  }, [tournament, session]);
 
   useEffect(() => {
-    const updateTimes = () => {
-      const newTimeStates = {};
-      tournaments.forEach((tournament) => {
-        newTimeStates[tournament._id] = calculateTimeLeft(
-          tournament.startDate,
-          tournament.endDate
+    const updateTime = () => {
+      if (tournament) {
+        setTimeState(
+          calculateTimeLeft(tournament.startDate, tournament.endDate)
         );
-      });
-      setTimeStates(newTimeStates);
+      }
     };
 
-    updateTimes();
-    const interval = setInterval(updateTimes, 60000); // Update every minute
+    updateTime();
+    const interval = setInterval(updateTime, 60000); // Update every minute
 
     return () => clearInterval(interval);
-  }, [tournaments]);
+  }, [tournament]);
 
-  useEffect(() => {
-    const getUserTournaments = async () => {
-      const data = await axios.post(`api/users/getTournaments`, {
-        userId: session?.user?.id,
-      });
-      console.log("from tournamentList", data.data.tournaments);
-      setUserTournaments(data.data.tournaments);
-    };
-
-    getUserTournaments();
-  }, []);
-  const getStatusBadge = (timeState) => {
+  const getStatusBadge = () => {
     if (!timeState) return null;
 
     const statusStyles = {
@@ -93,84 +103,84 @@ const TournamentList = ({ tournaments = [], onJoinLeave }) => {
       <Badge className={statusStyles[timeState.status]}>{timeState.text}</Badge>
     );
   };
-  const handleJoinLeave = async (tournamentId, game, action) => {
-    try {
-      setLoading(true);
-      await onJoinLeave(tournamentId, game, action);
-      // Optionally update UI or show success message
-    } catch (error) {
-      // Show error message to user
-      console.error("Failed to join/leave tournament:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-      {tournaments.map((tournament) => (
-        <Card key={tournament._id} className="flex flex-col">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <CardTitle className="text-xl font-bold">
-                {tournament.name}
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="flex-grow">
-            <p className="text-gray-600 mb-4">{tournament.description}</p>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Trophy className="w-4 h-4" />
-                <p className="font-semibold">₹{tournament.prize}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                <p>
-                  {tournament.teams?.length || 0}/{tournament.tournamentSize}{" "}
-                  Teams
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <p>{new Date(tournament.startDate).toLocaleDateString()}</p>
-              </div>
-              {getStatusBadge(timeStates[tournament._id])}
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => setSelectedTournament(tournament)}
-            >
-              View Teams
-            </Button>
 
-            <Button
-              variant={
-                tournament.teams?.includes(teamName) ? "destructive" : "default"
-              }
-              onClick={() =>
-                handleJoinLeave(
-                  tournament._id,
-                  tournament.game,
-                  userTournaments.includes(tournament.uid) ? "Leave" : "Join"
-                )
-              }
-              disabled={loading}
-            >
-              {loading ? (
-                <div className="flex justify-center items-center mx-auto h-64">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                </div>
-              ) : tournament.teams?.includes(teamName) ? (
-                "Leave"
-              ) : (
-                "Join"
-              )}
+  // If no tournament is passed, return null
+  if (!tournament) return null;
+
+  // Check if user has already joined the tournament
+  return (
+    <>
+      <Card className="flex flex-col">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <CardTitle className="text-xl font-bold">
+              {tournament.name}
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex-grow">
+          <p className="text-gray-600 mb-4">{tournament.description}</p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Trophy className="w-4 h-4" />
+              <p className="font-semibold">₹{tournament.prize}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              <p>
+                {tournament.teams?.length || 0}/{tournament.tournamentSize}{" "}
+                Teams
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <p>{new Date(tournament.startDate).toLocaleDateString()}</p>
+            </div>
+            {getStatusBadge()}
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          {timeState?.status === "live" && (
+            <Button variant="outline" onClick={() => {}}>
+              <Eye className="mr-2 h-4 w-4" /> Watch
             </Button>
-          </CardFooter>
-        </Card>
-      ))}
+          )}
+          {timeState?.status === "ended" && (
+            <Button variant="outline" onClick={() => {}}>
+              <Check className="mr-2 h-4 w-4" /> Check Results
+            </Button>
+          )}
+          {timeState?.status === "upcoming" && (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedTournament(tournament)}
+              >
+                View Teams
+              </Button>
+              <Button
+                variant={isJoined ? "destructive" : "default"}
+                onClick={() =>
+                  onJoinLeave(
+                    tournament.uid,
+                    tournament.game,
+                    isJoined ? "Leave" : "Join"
+                  )
+                }
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+                ) : isJoined ? (
+                  "Leave"
+                ) : (
+                  "Join"
+                )}
+              </Button>
+            </>
+          )}
+        </CardFooter>
+      </Card>
 
       <Dialog
         open={!!selectedTournament}
@@ -184,7 +194,7 @@ const TournamentList = ({ tournaments = [], onJoinLeave }) => {
             {selectedTournament?.teams?.length ? (
               selectedTournament.teams.map((team, index) => (
                 <div key={team} className="p-2 bg-gray-100 rounded">
-                  <p>{selectedTournament.teams.name}</p>
+                  <p>{team}</p>
                 </div>
               ))
             ) : (
@@ -193,7 +203,7 @@ const TournamentList = ({ tournaments = [], onJoinLeave }) => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 

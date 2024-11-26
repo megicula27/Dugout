@@ -26,7 +26,9 @@ export const GET = async (req) => {
     const prize = parseInt(url.searchParams.get("prize") || "0");
     const joined = url.searchParams.get("joined");
 
-    // Update tournament statuses based on dates
+    // New parameter for active/inactive tournaments
+    const activeFilter = url.searchParams.get("active") || true;
+
     const now = new Date();
 
     // Update completed tournaments
@@ -44,14 +46,19 @@ export const GET = async (req) => {
     );
 
     // Build the query pipeline
-    const pipeline = [
-      {
-        $match: {
-          active: true,
-          status: { $ne: "completed" },
-        },
+    const pipeline = [];
+
+    // Filter for active/inactive tournaments
+    const activeMatchStage = {
+      $match: {
+        status: { $ne: "completed" },
       },
-    ];
+    };
+
+    // If activeFilter is explicitly set
+    if (activeFilter == true) {
+      pipeline.push(activeMatchStage);
+    }
 
     // Add game filter if specified
     if (game !== "all") {
@@ -109,7 +116,7 @@ export const GET = async (req) => {
       const endDate = new Date(tournament.endDate);
 
       if (now >= startDate && now <= endDate) {
-        tournament.isLive = true;
+        tournament.status = "live";
       }
 
       return tournament;

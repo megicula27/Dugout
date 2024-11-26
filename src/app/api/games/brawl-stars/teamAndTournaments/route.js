@@ -2,7 +2,7 @@ import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
 import { NextResponse } from "next/server";
 import TeamBrawl from "@/models/Teams/TeamBrawl";
-// import TournamentBrawl from "@/models/Tournaments/TournamentBrawl";
+import TournamentBrawl from "@/models/Tournaments/TournamentBrawl";
 export async function POST(request) {
   await dbConnect();
   const { id } = await request.json();

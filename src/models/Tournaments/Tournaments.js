@@ -13,6 +13,7 @@ const tournamentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  teams: [{ type: String }],
   prize: {
     type: Number,
     required: true,
@@ -35,7 +36,7 @@ const tournamentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["scheduled", "completed"],
+    enum: ["scheduled", "live", "completed"],
     required: true,
     default: "scheduled",
   },
