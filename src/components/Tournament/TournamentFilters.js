@@ -93,56 +93,60 @@ const TournamentFiltersAndList = () => {
   const decrementPrize = () => {
     handlePrizeChange(filters.prize - 1000);
   };
-
-  const fetchUserTournaments = async () => {
-    if (!session?.user?.id) return;
-
+  const fetchTeamName = async (game) => {
     try {
-      const { data } = await axios.post(`/api/users/getTournaments`, {
-        userId: session.user.id,
-      });
+      if (game === "all" || !session?.user?.id) return null;
 
-      setUserTournaments(data.tournaments || []);
+      const { data } = await axios.post(
+        `/api/games/${game}/teamAndTournaments`,
+        {
+          id: session.user?.id,
+        }
+      );
+
+      if (data.success && data?.team) {
+        return data.team.teamName;
+      }
+      return null;
     } catch (error) {
-      console.error("Error fetching user tournaments:", error);
+      console.error("Error fetching team:", error);
+      return null;
     }
   };
+  const fetchTournaments = useCallback(async (filterParams) => {
+    setLoading(true);
+    try {
+      const queryParams = new URLSearchParams();
 
-  const fetchTournaments = useCallback(
-    async (filterParams, currentTeamName) => {
-      setLoading(true);
-      try {
-        const queryParams = new URLSearchParams();
+      Object.entries(filterParams).forEach(([key, value]) => {
+        queryParams.append(key, value?.toString() ?? "");
+      });
 
-        Object.entries(filterParams).forEach(([key, value]) => {
-          queryParams.append(key, value?.toString() ?? "");
-        });
+      // if (currentTeamName) {
+      //   queryParams.append("teamName", currentTeamName);
+      // }
 
-        // if (currentTeamName) {
-        //   queryParams.append("teamName", currentTeamName);
-        // }
+      const endpoint = "/api/tournaments";
 
-        const endpoint =
-          filterParams.game === "all"
-            ? "/api/tournaments"
-            : `/api/games/${filterParams.game}/tournaments`;
+      const { data } = await axios.get(`${endpoint}?${queryParams.toString()}`);
 
-        const response = await fetch(`${endpoint}?${queryParams.toString()}`);
-        const data = await response.json();
+      if (data.success) {
+        data.data.length > 0
+          ? showSuccessNotification("Tournaments fetched successfully!")
+          : showErrorNotification("No Tournaments Found :(");
 
-        if (data.success) {
-          setTournaments(data.data);
-        } else {
-          console.error("Failed to fetch tournaments:", data.message);
-        }
-      } catch (error) {
-        console.error("Error fetching tournaments:", error);
-      } finally {
-        setLoading(false);
+        setTournaments(data.data);
+      } else {
+        showErrorNotification("Failed to fetch tournaments");
+        console.error("Failed to fetch tournaments:", data.message);
       }
-    },
-    []
-  );
+    } catch (error) {
+      showErrorNotification("Failed to fetch tournaments");
+      console.error("Error fetching tournaments:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const handleJoinLeave = async (tournamentId, tournamentGame, action) => {
     try {
@@ -170,7 +174,6 @@ const TournamentFiltersAndList = () => {
         );
 
         // Refresh user tournaments and tournaments
-        await fetchUserTournaments();
         await handleApplyFilters();
       } else {
         showErrorNotification(
@@ -203,7 +206,6 @@ const TournamentFiltersAndList = () => {
   useEffect(() => {
     // Fetch initial tournaments and user tournaments
     fetchTournaments(filters);
-    fetchUserTournaments();
 
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
