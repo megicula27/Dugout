@@ -16,3 +16,4 @@ export { default as Tournament } from "@/components/Tournament/Tournament";
 export { default as CreateTournament } from "@/components/Tournament/Create";
 export { default as TournamentList } from "@/components/Tournament/TournamentList";
 export { default as TournamentFilter } from "@/components/Tournament/TournamentFilters";
+export { default as PlayerSearchPage } from "@/components/Users/FindPlayers";

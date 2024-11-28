@@ -121,21 +121,18 @@ export default function GamePage() {
     }
   };
   return (
-    <div className=" mx-auto px-4 py-4">
+    <div className="mx-auto px-4 py-4">
       <h1 className="text-3xl font-bold mb-6">
         {selectedGame ? selectedGame.name : "Featured Games"}
       </h1>
       {!selectedGame ? (
         <GameSelection onGameSelect={handleGameSelect} />
-      ) : userTeam ? (
+      ) : (
         <TeamDetails
+          selectedGame={selectedGame}
           team={userTeam}
           tournaments={tournaments}
           leaveTeam={handleTeamLeave}
-        />
-      ) : (
-        <CreateOrJoin
-          selectedGame={selectedGame}
           onCreateTeam={handleCreateTeam}
           onJoinTeam={handleJoinTeam}
         />

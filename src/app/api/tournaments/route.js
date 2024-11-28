@@ -21,7 +21,7 @@ export const GET = async (req) => {
 
     // Get query parameters
     const url = new URL(req.url);
-    console.log("from backend", url);
+    // console.log("from backend", url);
 
     const game = url.searchParams.get("game") || "all";
     const sortBy = url.searchParams.get("sortBy") || "startDate";
