@@ -91,9 +91,8 @@ export default function TeamDetails({
 
       <TabsContent value="player-stats">
         <PlayerStats
+          selectedGame={selectedGame}
           userId={team?.players?.[0]?.id}
-          existingStats={null}
-          onUpdateStats={() => {}}
         />
       </TabsContent>
     </Tabs>

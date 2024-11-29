@@ -14,7 +14,7 @@ const UserSchema = new mongoose.Schema(
 
     // Centralized game stats object
     gameStats: {
-      brawlStars: {
+      "brawl-stars": {
         type: Object,
         default: {},
       },
@@ -26,11 +26,11 @@ const UserSchema = new mongoose.Schema(
         type: Object,
         default: {},
       },
-      leagueOfLegends: {
+      "league-of-legends": {
         type: Object,
         default: {},
       },
-      apexLegends: {
+      "apex-legends": {
         type: Object,
         default: {},
       },

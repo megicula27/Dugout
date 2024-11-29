@@ -1,22 +1,68 @@
-"use client";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios"; // Make sure to install axios
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import GAME_CONFIGS from "@/data/game-configs";
+import { useSession } from "next-auth/react";
+export default function PlayerStats({ selectedGame }) {
+  // Get the configuration for the selected game
+  const gameConfig = GAME_CONFIGS[selectedGame.tag];
+  const gameFilters = gameConfig?.filters || {};
+  const gameRanks = gameConfig?.ranks || [];
 
-export default function PlayerStats({ userId, existingStats, onUpdateStats }) {
-  const [isEditing, setIsEditing] = useState(!existingStats);
-  const [stats, setStats] = useState(
-    existingStats || {
-      kills: "",
-      deaths: "",
-      assists: "",
-      winRate: "",
-      matchesPlayed: "",
-    }
-  );
+  // Initialize state
+  const { data: session } = useSession();
+  const [isEditing, setIsEditing] = useState(false);
+  const [stats, setStats] = useState({
+    rank: "",
+    ...Object.keys(gameFilters).reduce((acc, key) => {
+      acc[key] = "";
+      return acc;
+    }, {}),
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Fetch stats on component mount
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setIsLoading(true);
+
+        // Add the user ID to headers
+        const headers = {
+          "user-id": session?.user.id, // Replace with actual session user ID
+        };
+
+        // Make the GET request with params in the URL and headers
+        const response = await axios.get(
+          `/api/games/${selectedGame.tag}/player-stats`,
+          { headers }
+        );
+
+        // If stats exist, update the state
+        if (response.data.success) {
+          setStats(response.data.data); // Update with stats data
+          setIsEditing(false);
+        } else {
+          // If no stats, keep the initial empty state
+          setIsEditing(true);
+        }
+      } catch (err) {
+        setError(err);
+        setIsEditing(true);
+        console.error("Failed to fetch stats:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [selectedGame.tag, session.user.id]); // Add session.user.id to dependencies
+
+  // Handle changes to inputs
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setStats((prev) => ({
@@ -25,79 +71,127 @@ export default function PlayerStats({ userId, existingStats, onUpdateStats }) {
     }));
   };
 
-  const handleSaveStats = () => {
-    // Validate inputs
-    const validatedStats = {
-      kills: parseFloat(stats.kills) || 0,
-      deaths: parseFloat(stats.deaths) || 0,
-      assists: parseFloat(stats.assists) || 0,
-      winRate: parseFloat(stats.winRate) || 0,
-      matchesPlayed: parseFloat(stats.matchesPlayed) || 0,
-    };
+  // Save stats handler
+  const handleSaveStats = async () => {
+    try {
+      // Validate and prepare stats
+      const validatedStats = {
+        rank: stats.rank || "",
+        ...Object.keys(gameFilters).reduce((acc, key) => {
+          acc[key] = stats[key] || "";
+          return acc;
+        }, {}),
+      };
+      setIsLoading(true);
 
-    onUpdateStats(validatedStats);
-    setIsEditing(false);
+      const headers = {
+        "user-id": session?.user.id, // Replace with actual session user ID
+      };
+
+      const response = await axios.post(
+        `/api/games/${selectedGame.tag}/player-stats`,
+        { stats: validatedStats }, // Request body
+        { headers } // Pass headers
+      );
+
+      if (response.data.success) {
+        setStats(response.data.data); // Update with new stats
+        setIsEditing(false);
+      } else {
+        console.error("Failed to update stats:", response.data.message);
+      }
+    } catch (err) {
+      setError(err);
+      console.error("Error updating stats:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Loading Player Stats - {selectedGame.name}</CardTitle>
+        </CardHeader>
+        <CardContent>Loading...</CardContent>
+      </Card>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Error Loading Player Stats</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Unable to load stats. Please try again later.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Render editing view
   if (isEditing) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Update Player Stats</CardTitle>
+          <CardTitle>Update Player Stats - {selectedGame.name}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
+            {/* Rank Dropdown */}
             <div>
-              <Label>Kills</Label>
-              <Input
-                type="number"
-                name="kills"
-                value={stats.kills}
+              <Label>Rank</Label>
+              <select
+                name="rank"
+                value={stats.rank}
                 onChange={handleInputChange}
-                placeholder="Total Kills"
-              />
+                className="w-full p-2 border rounded"
+              >
+                <option value="">Select Rank</option>
+                {gameRanks.map((rank) => (
+                  <option key={rank} value={rank}>
+                    {rank}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div>
-              <Label>Deaths</Label>
-              <Input
-                type="number"
-                name="deaths"
-                value={stats.deaths}
-                onChange={handleInputChange}
-                placeholder="Total Deaths"
-              />
-            </div>
-            <div>
-              <Label>Assists</Label>
-              <Input
-                type="number"
-                name="assists"
-                value={stats.assists}
-                onChange={handleInputChange}
-                placeholder="Total Assists"
-              />
-            </div>
-            <div>
-              <Label>Win Rate (%)</Label>
-              <Input
-                type="number"
-                name="winRate"
-                value={stats.winRate}
-                onChange={handleInputChange}
-                placeholder="Win Rate"
-              />
-            </div>
-            <div>
-              <Label>Matches Played</Label>
-              <Input
-                type="number"
-                name="matchesPlayed"
-                value={stats.matchesPlayed}
-                onChange={handleInputChange}
-                placeholder="Total Matches"
-              />
-            </div>
+
+            {/* Dynamic Filters */}
+            {Object.entries(gameFilters).map(([key, filter]) => (
+              <div key={key}>
+                <Label>{filter.label}</Label>
+                {filter.type === "select" ? (
+                  <select
+                    name={key}
+                    value={stats[key]}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="">Select {filter.label}</option>
+                    {filter.options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <Input
+                    type="number"
+                    name={key}
+                    value={stats[key]}
+                    onChange={handleInputChange}
+                    placeholder={filter.label}
+                  />
+                )}
+              </div>
+            ))}
           </div>
+
           <div className="flex justify-end mt-4 space-x-2">
             <Button variant="outline" onClick={() => setIsEditing(false)}>
               Cancel
@@ -109,38 +203,30 @@ export default function PlayerStats({ userId, existingStats, onUpdateStats }) {
     );
   }
 
+  // Render view mode
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Player Stats</CardTitle>
+        <CardTitle>Player Stats - {selectedGame.name}</CardTitle>
         <Button variant="outline" onClick={() => setIsEditing(true)}>
           Edit Stats
         </Button>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4">
+          {/* Rank Display */}
           <div>
-            <p className="font-semibold">Kills</p>
-            <p>{existingStats?.kills || "Not set"}</p>
+            <p className="font-semibold">Rank</p>
+            <p>{stats?.rank || "Not set"}</p>
           </div>
-          <div>
-            <p className="font-semibold">Deaths</p>
-            <p>{existingStats?.deaths || "Not set"}</p>
-          </div>
-          <div>
-            <p className="font-semibold">Assists</p>
-            <p>{existingStats?.assists || "Not set"}</p>
-          </div>
-          <div>
-            <p className="font-semibold">Win Rate</p>
-            <p>
-              {existingStats?.winRate ? `${existingStats.winRate}%` : "Not set"}
-            </p>
-          </div>
-          <div>
-            <p className="font-semibold">Matches Played</p>
-            <p>{existingStats?.matchesPlayed || "Not set"}</p>
-          </div>
+
+          {/* Dynamic Filters Display */}
+          {Object.entries(gameFilters).map(([key, filter]) => (
+            <div key={key}>
+              <p className="font-semibold">{filter.label}</p>
+              <p>{stats?.[key] || "Not set"}</p>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>

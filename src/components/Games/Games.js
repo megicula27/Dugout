@@ -17,9 +17,11 @@ export default function GamePage() {
   const [tournaments, setTournaments] = useState([]);
   const { data: session } = useSession();
 
-  const handleGameSelect = (gameName) => {
-    setSelectedGame(gameName);
-    fetchTeamAndTournaments(gameName);
+  const handleGameSelect = (game) => {
+    console.log(game);
+
+    setSelectedGame(game);
+    fetchTeamAndTournaments(game.tag);
   };
 
   const fetchTeamAndTournaments = async (gameName) => {
@@ -28,6 +30,7 @@ export default function GamePage() {
         showErrorNotification("User is not logged in.");
         return;
       }
+      console.log(gameName);
 
       const response = await axios.post(
         `/api/games/${gameName}/teamAndTournaments`,
@@ -106,7 +109,7 @@ export default function GamePage() {
       }
 
       const response = await axios.post(
-        `/api/games/${selectedGame}/leaveteam`,
+        `/api/games/${selectedGame.tag}/leaveteam`,
         {
           userId: session.user.id,
         }

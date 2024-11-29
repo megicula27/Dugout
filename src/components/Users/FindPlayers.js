@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -26,87 +25,14 @@ import {
   showSuccessNotification,
   showErrorNotification,
 } from "@/utils/notifications";
-
-// Game configurations with their specific ranks and advanced filters
-const GAME_CONFIGS = {
-  "brawl-stars": {
-    ranks: ["Bronze", "Silver", "Gold", "Diamond", "Master", "Grandmaster"],
-    advancedFilters: [
-      { id: "trophies", label: "Minimum Trophies" },
-      { id: "brawlers", label: "Favorite Brawlers" },
-    ],
-  },
-  valorant: {
-    ranks: [
-      "Iron",
-      "Bronze",
-      "Silver",
-      "Gold",
-      "Platinum",
-      "Diamond",
-      "Immortal",
-      "Radiant",
-    ],
-    advancedFilters: [
-      { id: "agent", label: "Preferred Agent" },
-      { id: "playstyle", label: "Play Style" },
-    ],
-  },
-  csgo: {
-    ranks: [
-      "Silver",
-      "Gold Nova",
-      "Master Guardian",
-      "Distinguished Master Guardian",
-      "Legendary Eagle",
-      "Supreme Master First Class",
-      "Global Elite",
-    ],
-    advancedFilters: [
-      { id: "weapon", label: "Preferred Weapon" },
-      { id: "role", label: "Team Role" },
-    ],
-  },
-  "league-of-legends": {
-    ranks: [
-      "Iron",
-      "Bronze",
-      "Silver",
-      "Gold",
-      "Platinum",
-      "Diamond",
-      "Master",
-      "Grandmaster",
-      "Challenger",
-    ],
-    advancedFilters: [
-      { id: "champion", label: "Favorite Champions" },
-      { id: "lane", label: "Preferred Lane" },
-    ],
-  },
-  "apex-legends": {
-    ranks: [
-      "Bronze",
-      "Silver",
-      "Gold",
-      "Platinum",
-      "Diamond",
-      "Master",
-      "Predator",
-    ],
-    advancedFilters: [
-      { id: "legend", label: "Preferred Legend" },
-      { id: "playstyle", label: "Play Style" },
-    ],
-  },
-};
+import GAME_CONFIGS from "@/data/game-configs";
+// Game configurations with specific filter options
 
 const PlayerSearchPage = () => {
   const { data: session } = useSession();
   const [selectedGame, setSelectedGame] = useState("");
   const [selectedRank, setSelectedRank] = useState("");
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [advancedFilters, setAdvancedFilters] = useState({});
+  const [filters, setFilters] = useState({});
   const [searchResults, setSearchResults] = useState([]);
   const [isRegistrationDialogOpen, setIsRegistrationDialogOpen] =
     useState(false);
@@ -121,8 +47,7 @@ const PlayerSearchPage = () => {
   const handleGameSelect = (game) => {
     setSelectedGame(game);
     setSelectedRank("");
-    setAdvancedFilters({});
-    setShowAdvancedFilters(false);
+    setFilters({});
   };
 
   const handleSearch = async () => {
@@ -136,12 +61,11 @@ const PlayerSearchPage = () => {
       queryParams.set("game", selectedGame);
       queryParams.set("rank", selectedRank);
 
-      Object.entries(advancedFilters).forEach(([key, value]) => {
+      Object.entries(filters).forEach(([key, value]) => {
         if (value) {
           queryParams.set(key, value);
         }
       });
-      console.log(selectedGame, selectedRank);
 
       const endpoint = `/api/games/${selectedGame}/getPlayers`;
 
@@ -268,40 +192,72 @@ const PlayerSearchPage = () => {
             )}
           </div>
 
-          {/* Advanced Filters Toggle */}
+          {/* Filters */}
           {selectedGame && (
-            <div className="mb-4 flex items-center space-x-2">
-              <Checkbox
-                id="show-advanced-filters"
-                checked={showAdvancedFilters}
-                onCheckedChange={(checked) => setShowAdvancedFilters(!!checked)}
-              />
-              <label htmlFor="show-advanced-filters">
-                Show Advanced Filters
-              </label>
-            </div>
-          )}
-
-          {/* Advanced Filters */}
-          {showAdvancedFilters && selectedGame && (
             <div className="mb-4">
-              <h3 className="text-lg font-semibold mb-2">Advanced Filters</h3>
-              {GAME_CONFIGS[selectedGame].advancedFilters.map((filter) => (
-                <div key={filter.id} className="mb-2">
-                  <label className="block mb-1">{filter.label}</label>
-                  <input
-                    type="text"
-                    className="w-full p-2 border rounded"
-                    placeholder={`Enter ${filter.label.toLowerCase()}`}
-                    onChange={(e) =>
-                      setAdvancedFilters((prev) => ({
-                        ...prev,
-                        [filter.id]: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              ))}
+              <h3 className="text-lg font-semibold mb-2">Filters</h3>
+              {Object.entries(GAME_CONFIGS[selectedGame].filters).map(
+                ([filterId, filter]) => (
+                  <div key={filterId} className="mb-2">
+                    <label className="block mb-1">{filter.label}</label>
+                    {filter.type === "number" ? (
+                      <input
+                        type="number"
+                        className="w-full p-2 border rounded"
+                        placeholder={`Enter ${filter.label.toLowerCase()}`}
+                        onChange={(e) =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            [filterId]: e.target.value,
+                          }))
+                        }
+                      />
+                    ) : (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between bg-background text-foreground"
+                          >
+                            {filters[filterId] || `Choose ${filter.label}`}
+                            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="p-0 bg-background">
+                          {filter.options.map((option) => (
+                            <Button
+                              key={option}
+                              variant="ghost"
+                              className={cn(
+                                "relative w-full justify-start text-foreground hover:bg-accent hover:text-accent-foreground pl-8",
+                                filters[filterId] === option && "bg-accent"
+                              )}
+                              onClick={() => {
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  [filterId]: option,
+                                }));
+                                document.body.click(); // This will close the Popover
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "absolute left-2 w-4 h-4",
+                                  filters[filterId] === option
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {option}
+                            </Button>
+                          ))}
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
+                )
+              )}
             </div>
           )}
 

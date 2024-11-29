@@ -13,6 +13,7 @@ export default function BackgroundWrapper({ children, inter }) {
     "/tournament",
     "/auth",
     "/findplayer",
+    "/players",
   ];
 
   const isWhiteBackground = whiteBackgroundRoutes.some((route) =>
