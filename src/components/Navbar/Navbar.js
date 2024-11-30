@@ -30,7 +30,7 @@ const Navbar = () => {
     { href: "/games", label: "Games", icon: <Gamepad /> },
     { href: "/tournament", label: "Tournaments", icon: <Trophy /> },
     { href: "/teams", label: "Teams", icon: <Users /> },
-    { href: "/findplayer", label: "Players", icon: <UserPlus /> },
+    { href: "/players", label: "Players", icon: <UserPlus /> },
   ];
 
   return (
