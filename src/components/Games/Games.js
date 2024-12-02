@@ -144,3 +144,4 @@ export default function GamePage() {
   );
 }
 //TODO  change the add method and display the information correctly
+//TODO store the data in the db and display the information
