@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import User from "@/models/users/User"; // Adjust the import path as needed
-import connectDB from "@/lib/database/mongo"; // Assume you have a database connection utility
+import mongoose from "mongoose";
+import User from "@/models/users/User";
+import connectDB from "@/lib/database/mongo";
 
 export async function GET(request) {
   try {
@@ -11,6 +12,9 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const game = searchParams.get("game");
     const rank = searchParams.get("rank");
+    const trophies = searchParams.get("trophies");
+    const brawler = searchParams.get("brawler");
+    const userId = request.headers.get("user-id");
 
     // Validate game parameter
     const validGames = [
@@ -31,41 +35,66 @@ export async function GET(request) {
       );
     }
 
-    // Base query to find active users with game stats
-    const baseQuery = {
-      activeStatus: true,
-      [`gameStats.${game}.rank`]: rank,
+    // Construct the aggregation pipeline
+    const pipeline = [];
+
+    // Match active users with the specified game, excluding the current user
+    const matchStage = {
+      $match: {
+        activeStatus: true,
+        [`gameStats.${game}`]: { $exists: true },
+        // Exclude current user by converting userId to ObjectId
+        ...(userId && { _id: { $ne: new mongoose.Types.ObjectId(userId) } }),
+      },
     };
 
-    // Additional filter parsing
-    const additionalFilters = {};
-    const filterKeys = ["trophies", "agent", "weapon", "champion", "legend"];
+    // Add optional filters
+    if (rank) {
+      matchStage.$match[`gameStats.${game}.rank`] = rank;
+    }
 
-    filterKeys.forEach((key) => {
-      const value = searchParams.get(key);
-      if (value) {
-        additionalFilters[`gameStats.${game}.${key}`] = value;
-      }
+    pipeline.push(matchStage);
+
+    // Add trophy filter if provided
+    if (trophies) {
+      pipeline.push({
+        $match: {
+          [`gameStats.${game}.trophies`]: { $gte: parseInt(trophies) },
+        },
+      });
+    }
+
+    // Add brawler filter if provided (for Brawl Stars)
+    if (brawler && game === "brawl-stars") {
+      pipeline.push({
+        $match: {
+          [`gameStats.${game}.brawler`]: brawler,
+        },
+      });
+    }
+
+    // Project stage to shape the output
+    pipeline.push({
+      $project: {
+        id: "$_id",
+        username: 1,
+        gameStats: `$gameStats.${game}`,
+        game: { $literal: game },
+      },
     });
 
-    // Merge additional filters with base query
-    const finalQuery = {
-      ...baseQuery,
-      ...additionalFilters,
-    };
+    // Limit results
+    pipeline.push({ $limit: 50 });
 
-    // Fetch players
-    const players = await User.find(finalQuery)
-      .select("username gameStats")
-      .limit(50); // Limit to 50 results
+    // Execute the aggregation
+    const players = await User.aggregate(pipeline);
 
-    // Transform players to match frontend expectations
+    // Transform players if needed
     const formattedPlayers = players.map((player) => ({
-      id: player._id,
+      id: player.id,
       username: player.username,
       game: game,
-      rank: rank,
-      // You can add more details from gameStats if needed
+      gameStats: player.gameStats,
     }));
 
     return NextResponse.json({

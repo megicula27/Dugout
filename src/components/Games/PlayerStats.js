@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import GAME_CONFIGS from "@/data/game-configs";
+import GAME_CONFIGS from "@/data/game-configs-players";
 import { useSession } from "next-auth/react";
 export default function PlayerStats({ selectedGame }) {
   // Get the configuration for the selected game

@@ -40,7 +40,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     await connectDB();
-
+    const tag = "brawl-stars";
     const userId = request.headers.get("user-id");
     if (!userId) {
       return NextResponse.json(
@@ -51,11 +51,17 @@ export async function POST(request) {
 
     const body = await request.json();
     const { stats } = body;
+
     if (!stats || typeof stats !== "object") {
       return NextResponse.json(
         { success: false, message: "Invalid stats data" },
         { status: 400 }
       );
+    }
+
+    // Convert trophies to integer if present
+    if (stats.trophies) {
+      stats.trophies = parseInt(stats.trophies, 10);
     }
 
     const updatedUser = await User.findByIdAndUpdate(

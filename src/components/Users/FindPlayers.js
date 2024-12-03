@@ -69,7 +69,14 @@ const PlayerSearchPage = () => {
 
       const endpoint = `/api/games/${selectedGame}/getPlayers`;
 
-      const { data } = await axios.get(`${endpoint}?${queryParams.toString()}`);
+      const { data } = await axios.get(
+        `${endpoint}?${queryParams.toString()}`,
+        {
+          headers: {
+            "user-id": session?.user.id,
+          },
+        }
+      );
 
       if (data.success) {
         if (data.data.length > 0) {
@@ -264,7 +271,7 @@ const PlayerSearchPage = () => {
           {/* Search Button */}
           <Button
             onClick={handleSearch}
-            disabled={!selectedGame || !selectedRank}
+            disabled={!selectedGame}
             className="w-full"
           >
             Search Players
@@ -283,7 +290,7 @@ const PlayerSearchPage = () => {
                         {player.game
                           .replace("-", " ")
                           .replace(/\b\w/g, (l) => l.toUpperCase())}{" "}
-                        - {player.rank}
+                        - {player.gameStats.rank}
                       </div>
                     </div>
                     <Button onClick={() => handleInvite(player.id)}>

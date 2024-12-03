@@ -3,11 +3,11 @@ const GAME_CONFIGS = {
     ranks: ["Bronze", "Silver", "Gold", "Diamond", "Master", "Grandmaster"],
     filters: {
       trophies: {
-        label: "Minimum Trophies",
+        label: "Trophies",
         type: "number",
       },
       brawler: {
-        label: "Favorite Brawlers",
+        label: "Favorite Brawler",
         type: "select",
         options: [
           "Shelly",
@@ -120,7 +120,7 @@ const GAME_CONFIGS = {
     ],
     filters: {
       champion: {
-        label: "Favorite Champions",
+        label: "Favorite Champion",
         type: "select",
         options: [
           "Yasuo",
