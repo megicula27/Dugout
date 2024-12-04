@@ -77,6 +77,7 @@ export async function GET(request) {
     pipeline.push({
       $project: {
         id: "$_id",
+        uid: "$uid",
         username: 1,
         gameStats: `$gameStats.${game}`,
         game: { $literal: game },
@@ -91,7 +92,7 @@ export async function GET(request) {
 
     // Transform players if needed
     const formattedPlayers = players.map((player) => ({
-      id: player.id,
+      id: player.uid,
       username: player.username,
       game: game,
       gameStats: player.gameStats,

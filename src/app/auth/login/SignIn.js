@@ -47,8 +47,8 @@ const SignInForm = () => {
         setError(result.error);
         toast.error(result.error || "Sign-in failed. Please try again."); // Failure notification
       } else {
-        toast.success("Signed in successfully!"); // Success notification
         router.push("/");
+        toast.success("Signed in successfully!"); // Success notification
       }
     } catch (err) {
       setError("Failed to sign in. Please try again.");

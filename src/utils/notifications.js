@@ -1,15 +1,77 @@
 import { toast } from "react-hot-toast";
-import { X } from "lucide-react";
 // Default Success Notification
-export const showSuccessNotification = (message) => {
-  toast.success(message, { duration: 3000 });
+export const showSuccessNotification = (message, duration = 3000) => {
+  toast.success(message, {
+    duration,
+    style: {
+      background: "#4CAF50",
+      color: "white",
+    },
+  });
 };
 
 // Default Error Notification
-export const showErrorNotification = (message) => {
-  toast.error(message, { duration: 3000 });
+export const showErrorNotification = (message, duration = 3000) => {
+  toast.error(message, {
+    duration,
+    style: {
+      background: "#F44336",
+      color: "white",
+    },
+  });
 };
 
+// Custom Invitation Notification
+export const Button = ({ children, onClick, className }) => (
+  <button
+    onClick={onClick}
+    className={`px-4 py-2 rounded text-sm font-medium focus:outline-none ${className}`}
+  >
+    {children}
+  </button>
+);
+
+// Custom notification for invitations
+export const showInvitationNotification = (message, onAccept, onReject) => {
+  toast.custom(
+    (t) => (
+      <div
+        className={`${
+          t.visible ? "animate-enter" : "animate-leave"
+        } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+      >
+        <div className="flex-1 w-0 p-4">
+          <div className="flex items-start">
+            <div className="ml-3 flex-1">
+              <p className="text-sm font-medium text-gray-900">{message}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex">
+            <Button
+              onClick={() => {
+                onAccept && onAccept();
+                toast.dismiss(t.id);
+              }}
+              className="mr-2 bg-green-500 text-white"
+            >
+              Accept
+            </Button>
+            <Button
+              onClick={() => {
+                onReject && onReject();
+                toast.dismiss(t.id);
+              }}
+              className="bg-red-500 text-white"
+            >
+              Reject
+            </Button>
+          </div>
+        </div>
+      </div>
+    ),
+    { duration: Infinity }
+  );
+};
 export const showCustomNotification = (message) => {
   toast.custom(
     (t) => (

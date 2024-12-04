@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -24,8 +23,10 @@ import axios from "axios";
 import {
   showSuccessNotification,
   showErrorNotification,
+  showCustomNotification,
 } from "@/utils/notifications";
 import GAME_CONFIGS from "@/data/game-configs";
+import socketService from "@/utils/socketIOClient";
 // Game configurations with specific filter options
 
 const PlayerSearchPage = () => {
@@ -43,7 +44,60 @@ const PlayerSearchPage = () => {
       setIsUserLoggedIn(true);
     }
   }, [session]);
+  useEffect(() => {
+    if (session?.user?.id) {
+      const socket = socketService.connect(session.user.id);
 
+      socket.emit("register", session.user.uid);
+
+      // Cleanup on unmount
+      return () => {
+        socketService.disconnect();
+      };
+    }
+  }, [session]);
+
+  // Invite handler with socket integration
+  const handleInvite = async (player) => {
+    if (!session?.user?.id) {
+      toast.error("Please log in to send invitations");
+      return;
+    }
+
+    try {
+      const { data } = await axios.get(
+        `/api/games/${selectedGame}/player-stats`,
+        {
+          headers: {
+            "user-id": session?.user.id,
+          },
+        }
+      );
+
+      // Determine rank and username
+      const rank = data?.gameStats?.[selectedGame]?.rank || "Unknown";
+      if (rank === "Unknown") {
+        showCustomNotification(
+          "Head over to Games section to add and show your rank"
+        );
+      }
+      const senderUsername = session.user.name;
+
+      socketService.sendInvitation({
+        senderId: session.user.uid,
+        receiverId: player.id,
+        gameId: selectedGame,
+        senderRank: rank,
+        senderUsername: senderUsername,
+        receiverUsername: player.username,
+      });
+    } catch (error) {
+      // Handle any errors in fetching stats
+      showErrorNotification(error.message);
+
+      console.error("Error fetching player stats:", error);
+    }
+  };
   const handleGameSelect = (game) => {
     setSelectedGame(game);
     setSelectedRank("");
@@ -79,6 +133,8 @@ const PlayerSearchPage = () => {
       );
 
       if (data.success) {
+        // console.log(data.data);
+
         if (data.data.length > 0) {
           showSuccessNotification("Players fetched successfully!");
           setSearchResults(data.data);
@@ -95,10 +151,6 @@ const PlayerSearchPage = () => {
       showErrorNotification("An error occurred while searching players");
       setSearchResults([]);
     }
-  };
-
-  const handleInvite = (playerId) => {
-    console.log(`Inviting player with ID: ${playerId}`);
   };
 
   return (
@@ -293,9 +345,7 @@ const PlayerSearchPage = () => {
                         - {player.gameStats.rank}
                       </div>
                     </div>
-                    <Button onClick={() => handleInvite(player.id)}>
-                      Invite
-                    </Button>
+                    <Button onClick={() => handleInvite(player)}>Invite</Button>
                   </CardContent>
                 </Card>
               ))}

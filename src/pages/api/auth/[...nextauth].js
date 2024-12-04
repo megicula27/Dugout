@@ -5,7 +5,6 @@ import bcrypt from "bcryptjs";
 import User from "@/models/users/User"; // Ensure this is your Mongoose user model
 import dbConnect from "@/lib/database/mongo";
 import { generateUserId } from "@/utils/idGenerator";
-import toast from "react-hot-toast";
 const options = {
   providers: [
     // Google OAuth Provider
@@ -45,6 +44,7 @@ const options = {
         // Return user object if authentication successful
         return {
           id: user._id,
+          uid: user.uid,
           name: user.username,
           email: user.email,
         };
@@ -74,9 +74,13 @@ const options = {
 
           // Assign the newly created user's _id to the user object
           user.id = newUser._id.toString(); // Ensure user.id is a string for consistency
+          user.uid = newUser.uid;
+          user.name = newUser.username;
         } else {
           // For existing users, assign their MongoDB _id to the user object
           user.id = existingUser._id.toString(); // Ensure user.id is a string for consistency
+          user.uid = existingUser.uid;
+          user.name = existingUser.username;
         }
       }
       return true;
@@ -86,6 +90,7 @@ const options = {
       // Persist additional user information in token
       if (user) {
         token.id = user.id;
+        token.uid = user.uid;
         token.name = user.name;
         token.email = user.email;
       }
@@ -95,6 +100,7 @@ const options = {
     async session({ session, token }) {
       // Persist token data into session
       session.user.id = token.id;
+      session.user.uid = token.uid;
       session.user.name = token.name;
       session.user.email = token.email;
       return session;
