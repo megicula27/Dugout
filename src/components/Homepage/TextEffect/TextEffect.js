@@ -26,39 +26,23 @@ const textEffects = () => {
   }, []);
 
   return (
-    <div className="container">
+    <div className="py-10">
       <h1 className="text">
-        TEXT EFFECT<span>WOAH</span>
+        DOMINATE THE GAME<span>CONQUER THE ARENA</span>
       </h1>
       <h1 className="text">
-        GSAP<span>AND CLIPPING</span>
+        UNITE THE CLANS<span>FORGE ALLIANCES</span>
       </h1>
       <h1 className="text">
-        CRAZYYY<span>CRAZYYY</span>
+        CHALLENGE THE BEST<span>CRUSH THE RIVALS</span>
       </h1>
       <h1 className="text">
-        HOVER ON ME
-        <span>
-          <a
-            href="https://stacksorted.com/text-effects/minh-pham"
-            target="_blank"
-            rel="noreferrer"
-          >
-            SOURCE
-          </a>
-        </span>
+        ACHIEVE GLORY
+        <span>CLAIN THE CROWN</span>
       </h1>
       <h1 className="text">
-        LIKE THIS?
-        <span>
-          <a
-            href="https://twitter.com/juxtopposed"
-            target="_blank"
-            rel="noreferrer"
-          >
-            LET'S CONNECT
-          </a>
-        </span>
+        RISE TO VICTORY
+        <span>DEFEND THE THRONE</span>
       </h1>
     </div>
   );

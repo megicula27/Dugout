@@ -7,8 +7,9 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import "@/styles/nav-hamburger.css";
-
+import { signOut, useSession } from "next-auth/react";
 export default function Component() {
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
 
@@ -72,10 +73,19 @@ export default function Component() {
 
   const links = [
     { href: "/games", label: "Games" },
-    { href: "/tournament", label: "Tournament" },
+    { href: "/tournaments", label: "Tournaments" },
     { href: "/teams", label: "Teams" },
     { href: "/players", label: "Players" },
   ];
+  const handleSignOut = async () => {
+    try {
+      setIsOpen(false);
+      await signOut({ callbackUrl: "/" });
+      toast.success("You have signed out successfully!");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <>
@@ -86,14 +96,14 @@ export default function Component() {
         <Button
           variant="ghost"
           size="icon"
-          className="menu-button"
+          className="menu-button hover:bg-slate-800"
           onClick={() => setIsOpen(!isOpen)}
           aria-label={isOpen ? "Close menu" : "Open menu"}
         >
           {isOpen ? (
-            <X className="h-6 w-6" size={36} />
+            <X className="h-10 w-10 text-white " size={36} />
           ) : (
-            <Menu className="h-6 w-6" size={36} />
+            <Menu className="h-10 w-10 text-white " />
           )}
         </Button>
       </header>
@@ -140,20 +150,23 @@ export default function Component() {
                   animate="open"
                   className="button-container"
                 >
-                  <Button
-                    className="w-full justify-start"
-                    variant="outline"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Sign In
-                  </Button>
-                  <Button
-                    className="w-full justify-start"
-                    variant="outline"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Sign Up
-                  </Button>
+                  {session?.user?.id ? (
+                    <Link
+                      href="/auth"
+                      className="w-full text-center px-4 py-2 bg-red-600 text-white font-semibold rounded-md relative border-white outline outline-2 outline-white-500  transition-all duration-300 hover:-outline-offset-8 hover:bg-red-700 focus:outline-none focus:ring focus:ring-red-300"
+                      onClick={handleSignOut}
+                    >
+                      Sign Out
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/auth"
+                      className="w-full text-center px-4 py-2 bg-green-600 text-white font-semibold rounded-md relative border-white outline outline-2 outline-white-500  transition-all duration-300 hover:-outline-offset-8 hover:bg-green-700 focus:outline-none focus:ring focus:ring-green-300"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Sign In
+                    </Link>
+                  )}
                 </motion.div>
               </nav>
             </motion.div>

@@ -37,7 +37,7 @@ export default function Team() {
   ];
 
   return (
-    <div className="bg-white max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+    <div className="bg-black text-white max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold">Our Team</h2>
         <p className="text-gray-500 mt-2">
@@ -47,7 +47,7 @@ export default function Team() {
       <div className="grid md:grid-cols-3 gap-6 justify-items-center">
         {teamMembers.map((member) => (
           <Card key={member.id} className="w-full max-w-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-6 bg-black text-white  shadow-white shadow-md hover:shadow-white hover:shadow-lg transition-shadow duration-300">
               <Image
                 alt={`Team Member ${member.name}`}
                 className="aspect-square object-cover rounded-full mx-auto mb-4"

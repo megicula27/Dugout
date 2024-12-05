@@ -10,7 +10,7 @@ export default function BackgroundWrapper({ children, inter }) {
     "/login",
     "/register",
     "/teams",
-    "/tournament",
+    "/tournaments",
     "/auth",
     "/findplayer",
     "/players",

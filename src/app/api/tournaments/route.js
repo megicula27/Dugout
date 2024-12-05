@@ -21,12 +21,13 @@ export const GET = async (req) => {
 
     // Get query parameters
     const url = new URL(req.url);
-    // console.log("from backend", url);
 
     const game = url.searchParams.get("game") || "all";
     const sortBy = url.searchParams.get("sortBy") || "startDate";
     const prize = parseInt(url.searchParams.get("prize") || "0");
     const joined = url.searchParams.get("joined");
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const limit = 15;
 
     // New parameter for active/inactive tournaments
     const activeFilter = url.searchParams.get("active") || true;
@@ -85,9 +86,27 @@ export const GET = async (req) => {
       });
     }
 
+    // Create a count pipeline to get total number of documents
+    const countPipeline = [...pipeline];
+    countPipeline.push({ $count: "totalTournaments" });
+
+    // Get total count of tournaments
+    const totalCountResult = await Tournament.aggregate(countPipeline);
+    const totalTournaments = totalCountResult[0]?.totalTournaments || 0;
+    const totalPages = Math.ceil(totalTournaments / limit);
+
     // Add sorting
     pipeline.push({
       $sort: { [sortBy]: 1 },
+    });
+
+    // Add pagination
+    pipeline.push({
+      $skip: (page - 1) * limit,
+    });
+
+    pipeline.push({
+      $limit: limit,
     });
 
     // Add field projections
@@ -128,6 +147,12 @@ export const GET = async (req) => {
       {
         success: true,
         data: enrichedTournaments,
+        pagination: {
+          currentPage: page,
+          totalPages: totalPages,
+          totalTournaments: totalTournaments,
+          limit: limit,
+        },
       },
       { status: 200 }
     );

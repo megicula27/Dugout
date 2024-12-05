@@ -3,24 +3,15 @@
 import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Home, Gamepad, Trophy, Users, UserPlus, LogOut } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Glitch from "../Glitch/Glitch";
 import Button from "../Button/Button";
-import toast from "react-hot-toast";
-
+import handleSignOut from "@/utils/signOutUtil";
 const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname(); // Get current path
   const { data: session } = useSession();
 
-  const handleSignOut = async () => {
-    try {
-      await signOut({ callbackUrl: "/" });
-      toast.success("You have signed out successfully!");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
   const handleSignIn = () => {
     router.push("/auth");
   };
@@ -28,7 +19,7 @@ const Navbar = () => {
   const links = [
     { href: "/", label: "Dashboard", icon: <Home /> },
     { href: "/games", label: "Games", icon: <Gamepad /> },
-    { href: "/tournament", label: "Tournaments", icon: <Trophy /> },
+    { href: "/tournaments", label: "Tournaments", icon: <Trophy /> },
     { href: "/teams", label: "Teams", icon: <Users /> },
     { href: "/players", label: "Players", icon: <UserPlus /> },
   ];

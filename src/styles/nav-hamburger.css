@@ -35,8 +35,7 @@
 .menu-button {
   position: relative;
   z-index: 50;
-  color: rgb(83, 76, 76);
-  font-size: 1.5rem;
+  font-size: 2rem;
 }
 
 .backdrop {
