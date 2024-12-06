@@ -125,7 +125,7 @@ export default function GamePage() {
   };
   return (
     <div className="mx-auto px-4 py-4">
-      <h1 className="text-3xl font-bold mb-6">
+      <h1 className="text-white text-3xl font-bold mb-6">
         {selectedGame ? selectedGame.name : "Featured Games"}
       </h1>
       {!selectedGame ? (

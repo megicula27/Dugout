@@ -1,7 +1,7 @@
 import { Games } from "@/components/import/import";
 const page = () => {
   return (
-    <div className="bg-white">
+    <div className="">
       <Games />
     </div>
   );

@@ -1,6 +1,5 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import Image from "next/image";
 
 const featuredGames = [
   {
@@ -36,18 +35,18 @@ export default function GameSelection({ onGameSelect }) {
       {featuredGames.map((game) => (
         <Card
           key={game.id}
-          className="cursor-pointer hover:shadow-lg transition-shadow"
+          className="cursor-pointer  border-transparent text-white shadow-white shadow-md hover:shadow-white hover:shadow-lg transition-shadow duration-300"
+          style={{
+            backgroundImage: `url(${game.image})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
           onClick={() => onGameSelect({ name: game.name, tag: game.tag })}
         >
-          <CardContent className="p-4 flex flex-col items-center">
-            <Image
-              src={game.image}
-              alt={game.name}
-              width={100}
-              height={100}
-              className="rounded-lg mb-2"
-            />
-            <h2 className="text-lg font-semibold text-center">{game.name}</h2>
+          <CardContent className="p-4 flex flex-col items-center bg-black/50 h-64 justify-center">
+            <h2 className="text-lg font-semibold text-center text-white">
+              {game.name}
+            </h2>
           </CardContent>
         </Card>
       ))}

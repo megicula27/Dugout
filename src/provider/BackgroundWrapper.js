@@ -6,7 +6,6 @@ export default function BackgroundWrapper({ children, inter }) {
   const pathname = usePathname();
 
   const whiteBackgroundRoutes = [
-    "/games",
     "/login",
     "/register",
     "/teams",
