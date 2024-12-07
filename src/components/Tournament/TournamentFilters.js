@@ -36,14 +36,13 @@ import axios from "axios";
 import {
   showErrorNotification,
   showSuccessNotification,
-} from "@/utils/notifications";
+} from "@/utils/Notifications/notifications";
 import { useRouter } from "next/navigation";
 
 const TournamentFiltersAndList = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const [tournaments, setTournaments] = useState([]);
-  const [userTournaments, setUserTournaments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
     game: "all",
@@ -487,16 +486,19 @@ const TournamentFiltersAndList = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>
       ) : (
-        tournaments.map((tournament) => (
-          <TournamentList
-            key={tournament.id}
-            tournament={tournament}
-            userTournaments={userTournaments}
-            onJoinLeave={(tournamentId, tournamentGame, action) => {
-              handleJoinLeave(tournamentId, tournamentGame, action);
-            }}
-          />
-        ))
+        <div className="flex flex-wrap justify-start space-x-4">
+          {" "}
+          {/* Updated container */}
+          {tournaments.map((tournament) => (
+            <TournamentList
+              key={tournament.uid}
+              tournament={tournament}
+              onJoinLeave={(tournamentId, tournamentGame, action) => {
+                handleJoinLeave(tournamentId, tournamentGame, action);
+              }}
+            />
+          ))}
+        </div>
       )}
     </div>
   );

@@ -1,7 +1,7 @@
 // pages/api/games/[gameName]/leavetournament.js
 import dbConnect from "@/lib/database/mongo";
 import TournamentBrawl from "@/models/Tournaments/TournamentBrawl";
-import GeneralTournament from "@/models/Tournaments/Tournaments";
+import GeneralTournament from "@/models/Tournaments/Tournament";
 import TeamBrawl from "@/models/Teams/TeamBrawl";
 import GeneralTeam from "@/models/Teams/Teams";
 import User from "@/models/users/User";

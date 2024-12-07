@@ -1,0 +1,47 @@
+version: "3.9"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - SOCKET_SERVER=http://localhost:4000
+    depends_on:
+      - socket
+      - mongo
+      - redis
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672" # Port for RabbitMQ
+      - "15672:15672" # Port for RabbitMQ Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  socket:
+    build:
+      context: ../socket
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  mongo_data:

@@ -14,8 +14,9 @@ import { Button } from "@/components/ui/button";
 import { Gamepad2, Trophy } from "lucide-react";
 import Link from "next/link";
 import Autoplay from "embla-carousel-autoplay";
-
+import { useSession } from "next-auth/react";
 export default function TournamentCarousel() {
+  const { data: session } = useSession();
   const [tournaments, setTournaments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,6 +25,29 @@ export default function TournamentCarousel() {
     Autoplay({ delay: 3000, stopOnInteraction: false, stopOnMouseEnter: true })
   );
 
+  useEffect(() => {
+    const checkTournaments = async () => {
+      if (session?.user?.id) {
+        try {
+          const response = await axios.get(
+            "/api/tournaments/check-tournaments",
+            {
+              headers: {
+                "x-user-id": session.user.id,
+              },
+            }
+          );
+
+          // Handle the response if needed
+          console.log(response.data);
+        } catch (error) {
+          console.error("Error checking tournaments:", error);
+        }
+      }
+    };
+
+    checkTournaments();
+  }, [session]);
   useEffect(() => {
     const fetchTournaments = async () => {
       try {

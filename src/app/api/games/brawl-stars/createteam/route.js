@@ -3,7 +3,7 @@ import dbConnect from "@/lib/database/mongo";
 import TeamBrawl from "@/models/Teams/TeamBrawl";
 import Teams from "@/models/Teams/Teams";
 import User from "@/models/users/User";
-import { generateTeamId } from "@/utils/idGenerator";
+import { generateTeamId } from "@/utils/IDGen/idGenerator";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 

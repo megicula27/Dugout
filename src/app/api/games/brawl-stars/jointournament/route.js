@@ -2,7 +2,7 @@
 // pages/api/games/[gameName]/jointournament.js
 import dbConnect from "@/lib/database/mongo";
 import TournamentBrawl from "@/models/Tournaments/TournamentBrawl";
-import GeneralTournament from "@/models/Tournaments/Tournaments";
+import GeneralTournament from "@/models/Tournaments/Tournament";
 import TeamBrawl from "@/models/Teams/TeamBrawl";
 import User from "@/models/users/User";
 import { NextResponse } from "next/server";

@@ -3,7 +3,7 @@ import {
   showInvitationNotification,
   showErrorNotification,
   showSuccessNotification,
-} from "./notifications";
+} from "../Notifications/notifications";
 
 class SocketService {
   constructor() {
@@ -12,6 +12,7 @@ class SocketService {
 
   connect(userId) {
     this.socket = io("http://localhost:4000", {
+      transports: [websocket],
       query: { userId },
     });
 

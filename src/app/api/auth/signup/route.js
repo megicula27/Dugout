@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import User from "@/models/users/User";
 import dbConnect from "@/lib/database/mongo";
 import { NextResponse } from "next/server";
-import { generateUserId } from "@/utils/idGenerator";
+import { generateUserId } from "@/utils/IDGen/idGenerator";
 export async function POST(request) {
   try {
     await dbConnect();

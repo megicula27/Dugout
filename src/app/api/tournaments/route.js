@@ -1,7 +1,8 @@
 import dbconnection from "@/lib/database/mongo";
-import Tournament from "@/models/Tournaments/Tournaments";
+import Tournament from "@/models/Tournaments/Tournament";
 import { getToken } from "next-auth/jwt";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import client from "@/utils/Redis/redis"; // Import Redis client
 
 export const GET = async (req) => {
   try {
@@ -21,7 +22,6 @@ export const GET = async (req) => {
 
     // Get query parameters
     const url = new URL(req.url);
-
     const game = url.searchParams.get("game") || "all";
     const sortBy = url.searchParams.get("sortBy") || "startDate";
     const prize = parseInt(url.searchParams.get("prize") || "0");
@@ -31,6 +31,17 @@ export const GET = async (req) => {
 
     // New parameter for active/inactive tournaments
     const activeFilter = url.searchParams.get("active") || true;
+
+    // Check for cached data in Redis
+    const cacheKey = `tournaments:${game}:${sortBy}:${prize}:${joined}:${page}`;
+    const cachedData = await client.get(cacheKey);
+
+    if (cachedData) {
+      console.log("Cache Hit Tournament");
+      return NextResponse.json(JSON.parse(cachedData), { status: 200 });
+    }
+
+    console.log("Cache Miss Tournament");
 
     const now = new Date();
 
@@ -58,26 +69,22 @@ export const GET = async (req) => {
       },
     };
 
-    // If activeFilter is explicitly set
     if (activeFilter == true) {
       pipeline.push(activeMatchStage);
     }
 
-    // Add game filter if specified
     if (game !== "all") {
       pipeline.push({
         $match: { game },
       });
     }
 
-    // Add prize filter
     if (prize > 0) {
       pipeline.push({
         $match: { prize: { $gte: prize } },
       });
     }
 
-    // Add team participation filter if specified
     if (joined && teamId) {
       pipeline.push({
         $match: {
@@ -86,21 +93,17 @@ export const GET = async (req) => {
       });
     }
 
-    // Create a count pipeline to get total number of documents
     const countPipeline = [...pipeline];
     countPipeline.push({ $count: "totalTournaments" });
 
-    // Get total count of tournaments
     const totalCountResult = await Tournament.aggregate(countPipeline);
     const totalTournaments = totalCountResult[0]?.totalTournaments || 0;
     const totalPages = Math.ceil(totalTournaments / limit);
 
-    // Add sorting
     pipeline.push({
       $sort: { [sortBy]: 1 },
     });
 
-    // Add pagination
     pipeline.push({
       $skip: (page - 1) * limit,
     });
@@ -109,7 +112,6 @@ export const GET = async (req) => {
       $limit: limit,
     });
 
-    // Add field projections
     pipeline.push({
       $project: {
         _id: 1,
@@ -130,7 +132,6 @@ export const GET = async (req) => {
 
     const tournaments = await Tournament.aggregate(pipeline);
 
-    // Add additional status information based on current time
     const enrichedTournaments = tournaments.map((tournament) => {
       const now = new Date();
       const startDate = new Date(tournament.startDate);
@@ -142,6 +143,22 @@ export const GET = async (req) => {
 
       return tournament;
     });
+
+    // Cache the result in Redis with an expiry of 300 seconds (5 minutes)
+    await client.setEx(
+      cacheKey,
+      5,
+      JSON.stringify({
+        success: true,
+        data: enrichedTournaments,
+        pagination: {
+          currentPage: page,
+          totalPages: totalPages,
+          totalTournaments: totalTournaments,
+          limit: limit,
+        },
+      })
+    );
 
     return NextResponse.json(
       {

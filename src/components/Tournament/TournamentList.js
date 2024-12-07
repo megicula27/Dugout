@@ -19,7 +19,7 @@ import { Clock, Trophy, Users, Eye, Check } from "lucide-react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 
-const TournamentList = ({ tournament, userTournaments, onJoinLeave }) => {
+const TournamentList = ({ tournament, onJoinLeave }) => {
   const { data: session } = useSession();
   const [selectedTournament, setSelectedTournament] = useState(null);
   const [timeState, setTimeState] = useState(null);
@@ -54,6 +54,12 @@ const TournamentList = ({ tournament, userTournaments, onJoinLeave }) => {
   useEffect(() => {
     const fetchTeamName = async (game) => {
       try {
+        console.log(
+          "start time ",
+          tournament.startDate,
+          "end Date ",
+          tournament.endDate
+        );
         if (game === "all" || !session?.user?.id) return null;
 
         const { data } = await axios.post(

@@ -17,7 +17,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Check, ChevronDown } from "lucide-react"; // Add this import
-import { showSuccessNotification } from "@/utils/notifications";
+import { showSuccessNotification } from "@/utils/Notifications/notifications";
 const GAME_OPTIONS = [
   { value: "brawl-stars", label: "Brawl Stars" },
   { value: "valorant", label: "Valorant" },

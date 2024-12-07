@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema(
 
     // Game-specific teams and tournaments
     teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Teams" }],
-    tournaments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tournaments" }],
+    tournaments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tournament" }],
 
     // Centralized game stats object
     gameStats: {

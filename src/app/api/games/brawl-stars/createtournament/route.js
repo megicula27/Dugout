@@ -1,7 +1,7 @@
 import dbConnect from "@/lib/database/mongo";
 import TournamentBrawl from "@/models/Tournaments/TournamentBrawl";
-import Tournaments from "@/models/Tournaments/Tournaments";
-import { generateTournamentId } from "@/utils/idGenerator";
+import Tournaments from "@/models/Tournaments/Tournament";
+import { generateTournamentId } from "@/utils/IDGen/idGenerator";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {

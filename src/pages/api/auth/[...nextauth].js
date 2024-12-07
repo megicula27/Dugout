@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import User from "@/models/users/User"; // Ensure this is your Mongoose user model
 import dbConnect from "@/lib/database/mongo";
-import { generateUserId } from "@/utils/idGenerator";
+import { generateUserId } from "@/utils/IDGen/idGenerator";
 const options = {
   providers: [
     // Google OAuth Provider

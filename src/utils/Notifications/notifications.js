@@ -1,4 +1,5 @@
 import { toast } from "react-hot-toast";
+import "@/styles/tournamentWarning.css";
 // Default Success Notification
 export const showSuccessNotification = (message, duration = 3000) => {
   toast.success(message, {
@@ -110,6 +111,52 @@ export const showCustomNotification = (message) => {
     {
       position: "bottom-right",
       duration: 3000,
+    }
+  );
+};
+const TournamentNotification = ({ message }) => (
+  <div style={{ display: "flex", alignItems: "center", color: "#b59f3b" }}>
+    <span style={{ marginRight: "10px", fontSize: "24px" }}>⚠️</span>
+    <span>{message}</span>
+  </div>
+);
+export const showTournamentWarning = (message) => {
+  toast.custom(
+    (t) => (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "16px",
+          backgroundColor: "#FFFBE6",
+          border: "1px solid #FFD700",
+          borderRadius: "8px",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          maxWidth: "300px",
+          animation: t.visible ? "fadeIn 0.5s" : "fadeOut 0.5s",
+        }}
+      >
+        <TournamentNotification message={message} />
+        <button
+          onClick={() => toast.dismiss(t.id)}
+          style={{
+            marginLeft: "10px",
+            backgroundColor: "transparent",
+            border: "none",
+            color: "#b59f3b",
+            cursor: "pointer",
+            fontSize: "16px",
+            fontWeight: "bold",
+          }}
+        >
+          ✖
+        </button>
+      </div>
+    ),
+    {
+      duration: Infinity,
+      position: "bottom-right",
     }
   );
 };

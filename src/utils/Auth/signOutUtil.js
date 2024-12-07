@@ -4,7 +4,7 @@
 import { signOut } from "next-auth/react";
 import toast from "react-hot-toast";
 
-export const handleSignOut = async () => {
+const handleSignOut = async () => {
   try {
     await signOut({ callbackUrl: "/" });
     toast.success("You have signed out successfully!");
@@ -12,3 +12,4 @@ export const handleSignOut = async () => {
     console.error("Error signing out:", error);
   }
 };
+export default handleSignOut;

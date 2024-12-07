@@ -2,12 +2,11 @@
 import { useState } from "react";
 import GameSelection from "./GameSelection";
 import TeamDetails from "./TeamDetails";
-import CreateOrJoin from "./CreateOrJoinTeam";
 import {
   showCustomNotification,
   showSuccessNotification,
   showErrorNotification,
-} from "@/utils/notifications"; // Import notifications
+} from "@/utils/Notifications/notifications"; // Import notifications
 import { useSession } from "next-auth/react";
 import axios from "axios";
 
@@ -18,8 +17,6 @@ export default function GamePage() {
   const { data: session } = useSession();
 
   const handleGameSelect = (game) => {
-    console.log(game);
-
     setSelectedGame(game);
     fetchTeamAndTournaments(game.tag);
   };
@@ -38,6 +35,7 @@ export default function GamePage() {
       );
 
       const { team, tournaments } = response.data;
+      console.log("Team and tournament", tournaments);
 
       setUserTeam(team);
       setTournaments(tournaments);
@@ -64,8 +62,9 @@ export default function GamePage() {
         showErrorNotification("User is not logged in.");
         return;
       }
+      // console.log("game ->>>", game);
 
-      const response = await axios.post(`/api/games/${game}/createteam`, {
+      const response = await axios.post(`/api/games/${game.tag}/createteam`, {
         teamName,
         userId: session.user.id,
       });

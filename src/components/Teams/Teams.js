@@ -8,7 +8,7 @@ import {
   showSuccessNotification,
   showErrorNotification,
   showCustomNotification,
-} from "@/utils/notifications"; // Adjust the import path as needed
+} from "@/utils/Notifications/notifications"; // Adjust the import path as needed
 
 export default function Teams() {
   const [userTeam, setUserTeam] = useState([]);

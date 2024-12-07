@@ -24,9 +24,9 @@ import {
   showSuccessNotification,
   showErrorNotification,
   showCustomNotification,
-} from "@/utils/notifications";
+} from "@/utils/Notifications/notifications";
 import GAME_CONFIGS from "@/data/game-configs";
-import socketService from "@/utils/socketIOClient";
+import socketService from "@/utils/SocketIO/socketIOClient";
 // Game configurations with specific filter options
 
 const PlayerSearchPage = () => {

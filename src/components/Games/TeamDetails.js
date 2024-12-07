@@ -68,17 +68,17 @@ export default function TeamDetails({
             <CardTitle>Tournaments</CardTitle>
           </CardHeader>
           <CardContent>
-            {tournaments.length > 0 ? (
+            {Array.isArray(tournaments) && tournaments.length > 0 ? (
               <ul className="space-y-2">
                 {tournaments.map((tournament) => (
                   <li
-                    key={tournament.id}
-                    className="flex justify-between items-center"
+                    key={tournament.uid}
+                    className=" flex justify-between items-center"
                   >
-                    <span>{tournament.name}</span>
-                    <span className="text-sm text-gray-500">
-                      {tournament.date}
-                    </span>
+                    <p>{tournament.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {new Date(tournament.startDate).toLocaleString()}
+                    </p>
                   </li>
                 ))}
               </ul>

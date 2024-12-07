@@ -6,7 +6,7 @@ import { Home, Gamepad, Trophy, Users, UserPlus, LogOut } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Glitch from "../Glitch/Glitch";
 import Button from "../Button/Button";
-import handleSignOut from "@/utils/signOutUtil";
+import handleSignOut from "@/utils/Auth/signOutUtil";
 const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname(); // Get current path
