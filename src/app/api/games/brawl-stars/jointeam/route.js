@@ -4,6 +4,7 @@ import TeamBrawl from "@/models/Teams/TeamBrawl";
 import Teams from "@/models/Teams/Teams";
 import User from "@/models/users/User";
 import { NextResponse } from "next/server";
+import sendEmail from "@/utils/Mail/nodeMailer";
 
 const populateTeam = {
   basic: {
@@ -99,18 +100,27 @@ export async function POST(req, { params }) {
     team.players.push(userId);
     generalTeam.players.push(userId);
     user.teams.push(generalTeam._id);
-    user.brawlStarsTeam.push(team._id);
+    user.brawlStarsTeam = team._id;
     // Save all documents in parallel
     await Promise.all([team.save(), generalTeam.save(), user.save()]);
 
     // Populate player details if needed
 
     await user.populate(populateUser.brawlStarsTeam); // here i need to populate teams which contains generalTeam id
+    await team.populate("players", "email"); // Populate team players' email addresses
 
+    const emails = team.players.map((player) => player.email); // Extract email addresses
+
+    // Send email to all team members
+    await sendEmail({
+      to: emails, // Pass the array of emails or a comma-separated string
+      subject: "New Member Joined Your Team",
+      text: `${user.username} has joined your team "${team.teamName}".`,
+    });
     return NextResponse.json(
       {
         success: true,
-        message: "Joined team successfully",
+        message: `${user.name} Joined ${team.teamName} Brawl Stars team successfully`,
         team: user.brawlStarsTeam,
       },
       { status: 200 }

@@ -40,7 +40,7 @@ export async function POST(request) {
       const populatedUser = await user.populate({
         path: "brawlStarsTeam",
         model: "TeamBrawl",
-        select: "teamName players",
+        select: "teamName uid players",
         populate: {
           path: "players",
           model: "User",

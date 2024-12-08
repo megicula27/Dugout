@@ -1,7 +1,7 @@
 import dbConnect from "@/lib/database/mongo"; // Your MongoDB connection function
 import User from "@/models/users/User"; // User model
 import { NextResponse } from "next/server"; // Next.js response helper
-
+import Tournament from "@/models/Tournaments/Tournament";
 export async function GET(req) {
   try {
     // Ensure the database connection is made

@@ -35,7 +35,9 @@ export default function TeamDetails({
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>{team.teamName}</CardTitle>
+          <CardTitle>
+            {team.teamName} {team.uid}
+          </CardTitle>
           <Button variant="destructive" onClick={leaveTeam} className="ml-4">
             Leave Team
           </Button>
@@ -76,6 +78,7 @@ export default function TeamDetails({
                     className=" flex justify-between items-center"
                   >
                     <p>{tournament.name}</p>
+                    <p>{tournament.uid}</p>
                     <p className="text-sm text-gray-500">
                       {new Date(tournament.startDate).toLocaleString()}
                     </p>

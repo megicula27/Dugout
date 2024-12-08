@@ -35,7 +35,7 @@ export default function GamePage() {
       );
 
       const { team, tournaments } = response.data;
-      console.log("Team and tournament", tournaments);
+      console.log("Team and tournament", team, tournaments);
 
       setUserTeam(team);
       setTournaments(tournaments);
@@ -85,8 +85,9 @@ export default function GamePage() {
         showErrorNotification("User is not logged in.");
         return;
       }
+      // console.log(gameName);
 
-      const response = await axios.post(`/api/games/${gameName}/jointeam`, {
+      const response = await axios.post(`/api/games/${gameName.tag}/jointeam`, {
         teamUid,
         userId: session.user.id,
       });
