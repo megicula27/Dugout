@@ -54,12 +54,12 @@ const TournamentList = ({ tournament, onJoinLeave }) => {
   useEffect(() => {
     const fetchTeamName = async (game) => {
       try {
-        console.log(
-          "start time ",
-          tournament.startDate,
-          "end Date ",
-          tournament.endDate
-        );
+        // console.log(
+        //   "start time ",
+        //   tournament.startDate,
+        //   "end Date ",
+        //   tournament.endDate
+        // );
         if (game === "all" || !session?.user?.id) return null;
 
         const { data } = await axios.post(

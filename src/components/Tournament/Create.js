@@ -105,8 +105,8 @@ const CreateTournamentForm = () => {
     };
 
     try {
-      console.log("Submitting with payload:", payload);
-      console.log("To URL:", `/api/games/${formData.game}/createtournament`);
+      // console.log("Submitting with payload:", payload);
+      // console.log("To URL:", `/api/games/${formData.game}/createtournament`);
 
       const { data } = await axios.post(
         `/api/games/${formData.game}/createtournament`,
@@ -120,7 +120,7 @@ const CreateTournamentForm = () => {
       showSuccessNotification(
         data.message || "Tournament created successfully!!"
       );
-      console.log("Response:", data);
+      // console.log("Response:", data);
       // router.push(`/tournaments/${data.tournament.uid}`);
     } catch (err) {
       console.error("Full error:", err);

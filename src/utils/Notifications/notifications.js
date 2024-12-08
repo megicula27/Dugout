@@ -116,8 +116,8 @@ export const showCustomNotification = (message) => {
 };
 const TournamentNotification = ({ message }) => (
   <div style={{ display: "flex", alignItems: "center", color: "#b59f3b" }}>
-    <span style={{ marginRight: "10px", fontSize: "24px" }}>⚠️</span>
-    <span>{message}</span>
+    <p style={{ marginRight: "10px", fontSize: "24px" }}>⚠️</p>
+    <p>{message}</p>
   </div>
 );
 export const showTournamentWarning = (message) => {

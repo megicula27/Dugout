@@ -5,7 +5,7 @@ import AuthProvider from "@/provider/AuthProvider";
 import ChangeStatusOnUnload from "@/provider/ChangeStatusOnUnload";
 import ChangeStatusOnLoad from "@/provider/ChangeStatusOnLoad";
 import BackgroundWrapper from "@/provider/BackgroundWrapper";
-
+import TournamentNotification from "@/provider/TournamentNotifications";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -21,6 +21,7 @@ export default function RootLayout({ children }) {
           <Toaster position="top-right" reverseOrder={false} />
           <ChangeStatusOnLoad />
           <ChangeStatusOnUnload />
+          <TournamentNotification />
           {children}
         </AuthProvider>
       </BackgroundWrapper>

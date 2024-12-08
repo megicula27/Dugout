@@ -21,4 +21,6 @@ COPY .env .env
 EXPOSE 3000 4000
 
 # Start the application (adjust as per your scripts in package.json)
+
 CMD ["npm", "run", "dev"]
+
