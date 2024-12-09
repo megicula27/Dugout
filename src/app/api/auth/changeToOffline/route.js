@@ -3,6 +3,7 @@ import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
 import { getToken } from "next-auth/jwt";
 
+import { decrementUserConnections } from "@/utils/Prometheus/metrics";
 export const POST = async (req) => {
   try {
     // Get the token to identify the user
@@ -21,8 +22,10 @@ export const POST = async (req) => {
       "activeStatus"
     );
     if (userFromDB) {
+      decrementUserConnections();
       userFromDB.activeStatus = false;
       await userFromDB.save();
+
       console.log("User status updated to inactive.");
       return new Response(JSON.stringify({ message: "User status updated" }), {
         status: 200,

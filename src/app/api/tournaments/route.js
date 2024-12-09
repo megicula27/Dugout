@@ -3,8 +3,8 @@ import Tournament from "@/models/Tournaments/Tournament";
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import client from "@/utils/Redis/redis"; // Import Redis client
-
-export const GET = async (req) => {
+import { withMetrics } from "@/utils/Prometheus/metrics";
+export const GET = withMetrics(async (req) => {
   try {
     await dbconnection();
     const token = await getToken({ req });
@@ -183,4 +183,4 @@ export const GET = async (req) => {
       { status: 500 }
     );
   }
-};
+});

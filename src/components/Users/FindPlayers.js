@@ -44,18 +44,6 @@ const PlayerSearchPage = () => {
       setIsUserLoggedIn(true);
     }
   }, [session]);
-  useEffect(() => {
-    if (session?.user?.id) {
-      const socket = socketService.connect(session.user.id);
-
-      socket.emit("register", session.user.uid);
-
-      // Cleanup on unmount
-      return () => {
-        socketService.disconnect();
-      };
-    }
-  }, [session]);
 
   // Invite handler with socket integration
   const handleInvite = async (player) => {

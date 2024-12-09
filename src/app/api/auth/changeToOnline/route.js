@@ -2,6 +2,7 @@
 import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
 import { getToken } from "next-auth/jwt";
+import { incrementUserConnections } from "@/utils/Prometheus/metrics";
 
 export const POST = async (req) => {
   try {
@@ -20,6 +21,7 @@ export const POST = async (req) => {
     if (userFromDB) {
       userFromDB.activeStatus = true;
       await userFromDB.save();
+      incrementUserConnections();
       console.log("User status updated to active.");
       return new Response(JSON.stringify({ message: "User status updated" }), {
         status: 200,
