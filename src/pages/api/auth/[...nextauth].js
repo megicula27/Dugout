@@ -81,6 +81,7 @@ const options = {
           user.id = existingUser._id.toString(); // Ensure user.id is a string for consistency
           user.uid = existingUser.uid;
           user.name = existingUser.username;
+          user.teams = existingUser.teams;
         }
       }
       return true;
@@ -93,6 +94,7 @@ const options = {
         token.uid = user.uid;
         token.name = user.name;
         token.email = user.email;
+        token.teams = user.teams;
       }
 
       return token;
@@ -103,6 +105,7 @@ const options = {
       session.user.uid = token.uid;
       session.user.name = token.name;
       session.user.email = token.email;
+      session.user.teams = token.teams;
       return session;
     },
     // async signOut({ token }) {
