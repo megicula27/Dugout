@@ -40,7 +40,7 @@ import {
   showSuccessNotification,
 } from "@/utils/Notifications/notifications";
 import { useRouter } from "next/navigation";
-
+//Todo: add pagination correctly
 const TournamentFiltersAndList = () => {
   const router = useRouter();
   const { data: session } = useSession();
