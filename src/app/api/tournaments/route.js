@@ -1,24 +1,15 @@
 import dbconnection from "@/lib/database/mongo";
 import Tournament from "@/models/Tournaments/Tournament";
+import User from "@/models/users/User"; // Assuming you have a User model
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
-import client from "@/utils/Redis/redis"; // Import Redis client
+import client from "@/utils/Redis/redis";
 import { withMetrics } from "@/utils/Prometheus/metrics";
+
 export const GET = withMetrics(async (req) => {
   try {
     await dbconnection();
     const token = await getToken({ req });
-    if (!token) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "User not authenticated",
-        },
-        { status: 401 }
-      );
-    }
-
-    const teamId = token.teams ? token?.teams[0]?.team : null;
 
     // Get query parameters
     const url = new URL(req.url);
@@ -33,7 +24,9 @@ export const GET = withMetrics(async (req) => {
     const activeFilter = url.searchParams.get("active") || true;
 
     // Check for cached data in Redis
-    const cacheKey = `tournaments:${game}:${sortBy}:${prize}:${joined}:${page}`;
+    const cacheKey = `tournaments:${game}:${sortBy}:${prize}:${joined}:${page}:${
+      token?.email || "anonymous"
+    }`;
     const cachedData = await client.get(cacheKey);
 
     if (cachedData) {
@@ -73,26 +66,45 @@ export const GET = withMetrics(async (req) => {
       pipeline.push(activeMatchStage);
     }
 
+    // Game filtering
     if (game !== "all") {
       pipeline.push({
         $match: { game },
       });
     }
 
+    // Prize filtering
     if (prize > 0) {
       pipeline.push({
         $match: { prize: { $gte: prize } },
       });
     }
 
-    if (joined && teamId) {
-      pipeline.push({
-        $match: {
-          teams: joined === "true" ? teamId : { $ne: teamId },
-        },
-      });
+    // Team filtering logic
+    if (joined && token) {
+      // Find the user to get their teams
+      const user = await User.findOne({ email: token.email });
+
+      if (user) {
+        if (joined === "true") {
+          // Show tournaments where user's teams are participating
+          pipeline.push({
+            $match: {
+              teams: { $elemMatch: { $in: user.teams } },
+            },
+          });
+        } else {
+          // Show tournaments where user's teams are NOT participating
+          pipeline.push({
+            $match: {
+              teams: { $not: { $elemMatch: { $in: user.teams } } },
+            },
+          });
+        }
+      }
     }
 
+    // Pagination and sorting
     const countPipeline = [...pipeline];
     countPipeline.push({ $count: "totalTournaments" });
 
@@ -144,35 +156,22 @@ export const GET = withMetrics(async (req) => {
       return tournament;
     });
 
-    // Cache the result in Redis with an expiry of 300 seconds (5 minutes)
-    await client.setEx(
-      cacheKey,
-      5,
-      JSON.stringify({
-        success: true,
-        data: enrichedTournaments,
-        pagination: {
-          currentPage: page,
-          totalPages: totalPages,
-          totalTournaments: totalTournaments,
-          limit: limit,
-        },
-      })
-    );
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: enrichedTournaments,
-        pagination: {
-          currentPage: page,
-          totalPages: totalPages,
-          totalTournaments: totalTournaments,
-          limit: limit,
-        },
+    // Prepare response data
+    const responseData = {
+      success: true,
+      data: enrichedTournaments,
+      pagination: {
+        currentPage: page,
+        totalPages: totalPages,
+        totalTournaments: totalTournaments,
+        limit: limit,
       },
-      { status: 200 }
-    );
+    };
+
+    // Cache the result in Redis with an expiry of 300 seconds (5 minutes)
+    await client.setEx(cacheKey, 300, JSON.stringify(responseData));
+
+    return NextResponse.json(responseData, { status: 200 });
   } catch (error) {
     console.error("Error in processing request:", error);
     return NextResponse.json(

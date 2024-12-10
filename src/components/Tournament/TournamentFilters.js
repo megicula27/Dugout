@@ -8,6 +8,8 @@ import {
   SlidersHorizontal,
   Plus,
   Minus,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import {
@@ -44,12 +46,19 @@ const TournamentFiltersAndList = () => {
   const { data: session } = useSession();
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 0,
+    totalTournaments: 0,
+    limit: 15,
+  });
   const [filters, setFilters] = useState({
     game: "all",
     sortBy: "startDate",
     prize: 0,
     joined: null,
     active: null,
+    page: 1,
   });
 
   // Initialize with mobile detection
@@ -117,13 +126,12 @@ const TournamentFiltersAndList = () => {
     try {
       const queryParams = new URLSearchParams();
 
+      // Convert filters to query parameters
       Object.entries(filterParams).forEach(([key, value]) => {
-        queryParams.append(key, value?.toString() ?? "");
+        if (value !== null && value !== undefined) {
+          queryParams.append(key, value?.toString() ?? "");
+        }
       });
-
-      // if (currentTeamName) {
-      //   queryParams.append("teamName", currentTeamName);
-      // }
 
       const endpoint = "/api/tournaments";
 
@@ -135,6 +143,14 @@ const TournamentFiltersAndList = () => {
           : showErrorNotification("No Tournaments Found :(");
 
         setTournaments(data.data);
+
+        // Update pagination state
+        setPagination({
+          currentPage: data.pagination.currentPage,
+          totalPages: data.pagination.totalPages,
+          totalTournaments: data.pagination.totalTournaments,
+          limit: data.pagination.limit,
+        });
       } else {
         showErrorNotification("Failed to fetch tournaments");
         console.error("Failed to fetch tournaments:", data.message);
@@ -194,14 +210,27 @@ const TournamentFiltersAndList = () => {
   };
 
   const handleApplyFilters = async () => {
+    const updatedFilters = {
+      ...filters,
+      page: 1, // Reset to first page when applying new filters
+    };
+    setFilters(updatedFilters);
+
     if (filters.game !== "all") {
       const newTeamName = await fetchTeamName(filters.game);
-      await fetchTournaments(filters, newTeamName);
+      await fetchTournaments(updatedFilters, newTeamName);
     } else {
-      await fetchTournaments(filters, null);
+      await fetchTournaments(updatedFilters, null);
     }
   };
-
+  const handlePageChange = (newPage) => {
+    const updatedFilters = {
+      ...filters,
+      page: newPage,
+    };
+    setFilters(updatedFilters);
+    fetchTournaments(updatedFilters);
+  };
   useEffect(() => {
     // Fetch initial tournaments and user tournaments
     fetchTournaments(filters);
@@ -428,7 +457,32 @@ const TournamentFiltersAndList = () => {
       </Button>
     </div>
   );
-
+  const PaginationControls = () => (
+    <div className="flex justify-center items-center space-x-2 mt-4">
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => handlePageChange(pagination.currentPage - 1)}
+        disabled={pagination.currentPage === 1}
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </Button>
+      <span className="text-sm">
+        Page {pagination.currentPage} of {pagination.totalPages}
+      </span>
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => handlePageChange(pagination.currentPage + 1)}
+        disabled={pagination.currentPage === pagination.totalPages}
+      >
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+      <div className="text-sm text-muted-foreground ml-2">
+        Total Tournaments: {pagination.totalTournaments}
+      </div>
+    </div>
+  );
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6 w-full">
