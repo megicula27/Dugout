@@ -1,0 +1,178 @@
+const GAME_CONFIGS = {
+  "brawl-stars": {
+    ranks: ["Bronze", "Silver", "Gold", "Diamond", "Master", "Grandmaster"],
+    filters: {
+      trophies: {
+        label: "Trophies",
+        type: "number",
+      },
+      brawler: {
+        label: "Favorite Brawler",
+        type: "select",
+        options: [
+          "Shelly",
+          "Colt",
+          "Bull",
+          "Brock",
+          "Rico",
+          "Spike",
+          "Mortis",
+          "Crow",
+          "Leon",
+          "Sandy",
+          "Max",
+          "Mr. P",
+        ],
+      },
+    },
+  },
+  valorant: {
+    ranks: [
+      "Iron",
+      "Bronze",
+      "Silver",
+      "Gold",
+      "Platinum",
+      "Diamond",
+      "Immortal",
+      "Radiant",
+    ],
+    filters: {
+      agent: {
+        label: "Preferred Agent",
+        type: "select",
+        options: [
+          "Jett",
+          "Sage",
+          "Phoenix",
+          "Raze",
+          "Cypher",
+          "Sova",
+          "Reyna",
+          "Omen",
+          "Brimstone",
+          "Breach",
+        ],
+      },
+      playstyle: {
+        label: "Play Style",
+        type: "select",
+        options: [
+          "Aggressive",
+          "Defensive",
+          "Support",
+          "Entry Fragger",
+          "Lurker",
+        ],
+      },
+    },
+  },
+  csgo: {
+    ranks: [
+      "Silver",
+      "Gold Nova",
+      "Master Guardian",
+      "Distinguished Master Guardian",
+      "Legendary Eagle",
+      "Supreme Master First Class",
+      "Global Elite",
+    ],
+    filters: {
+      weapon: {
+        label: "Preferred Weapon",
+        type: "select",
+        options: [
+          "AK-47",
+          "M4A4",
+          "AWP",
+          "M4A1-S",
+          "Desert Eagle",
+          "Galil",
+          "Famas",
+          "MP9",
+          "UMP-45",
+        ],
+      },
+      role: {
+        label: "Team Role",
+        type: "select",
+        options: [
+          "Entry Fragger",
+          "AWPer",
+          "Support",
+          "In-Game Leader",
+          "Lurker",
+        ],
+      },
+    },
+  },
+  "league-of-legends": {
+    ranks: [
+      "Iron",
+      "Bronze",
+      "Silver",
+      "Gold",
+      "Platinum",
+      "Diamond",
+      "Master",
+      "Grandmaster",
+      "Challenger",
+    ],
+    filters: {
+      champion: {
+        label: "Favorite Champion",
+        type: "select",
+        options: [
+          "Yasuo",
+          "Lee Sin",
+          "Ahri",
+          "Jinx",
+          "Thresh",
+          "Zed",
+          "Lux",
+          "Teemo",
+          "Garen",
+          "Darius",
+        ],
+      },
+      lane: {
+        label: "Preferred Lane",
+        type: "select",
+        options: ["Top", "Jungle", "Mid", "Bottom (ADC)", "Support"],
+      },
+    },
+  },
+  "apex-legends": {
+    ranks: [
+      "Bronze",
+      "Silver",
+      "Gold",
+      "Platinum",
+      "Diamond",
+      "Master",
+      "Predator",
+    ],
+    filters: {
+      legend: {
+        label: "Preferred Legend",
+        type: "select",
+        options: [
+          "Wraith",
+          "Bangalore",
+          "Bloodhound",
+          "Pathfinder",
+          "Lifeline",
+          "Octane",
+          "Caustic",
+          "Mirage",
+        ],
+      },
+      playstyle: {
+        label: "Play Style",
+        type: "select",
+        options: ["Aggressive", "Defensive", "Support", "Stealth", "Balanced"],
+      },
+    },
+  },
+};
+export default GAME_CONFIGS;

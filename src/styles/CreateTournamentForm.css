@@ -1,0 +1,77 @@
+/* CreateTournamentForm.css */
+
+/* Select Component Container */
+.select-container {
+  width: 100%; /* Full width */
+  position: relative; /* To ensure dropdowns appear correctly */
+}
+
+/* Select Trigger */
+.select-trigger {
+  width: 100%; /* Full width */
+  color: black !important; /* Text color for light mode */
+  background-color: white !important; /* Background for trigger */
+  border: 1px solid #d1d5db; /* Light gray border */
+  border-radius: 6px; /* Smooth corners */
+  padding: 8px 12px; /* Spacing for better appearance */
+  font-size: 16px; /* Adjust font size */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer; /* Pointer cursor for interactive elements */
+}
+
+.select-trigger:hover {
+  background-color: #f9fafb; /* Slight hover effect for trigger */
+  border-color: #cbd5e1; /* Change border color on hover */
+}
+
+/* Placeholder style for SelectValue */
+.select-value::placeholder {
+  color: gray !important; /* Placeholder text color */
+  opacity: 1; /* Ensure visibility */
+}
+
+/* Content Container for Dropdown Items */
+.select-content {
+  background-color: white !important; /* Dropdown background */
+  border: 1px solid #d1d5db; /* Border for dropdown */
+  border-radius: 6px; /* Rounded corners */
+  margin-top: 4px; /* Spacing between trigger and dropdown */
+  z-index: 999; /* Ensure dropdown appears above other elements */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Individual Dropdown Items */
+.select-item {
+  color: black !important; /* Text color for dropdown items */
+  padding: 8px 12px; /* Spacing for each item */
+  cursor: pointer; /* Pointer cursor for interactive items */
+  font-size: 16px; /* Font size adjustment */
+}
+
+.select-item:hover {
+  background-color: #e5e7eb !important; /* Light gray hover background */
+  color: black !important; /* Ensure hover text color remains consistent */
+}
+
+/* Dark Mode Overrides */
+.dark .select-trigger {
+  color: white !important; /* White text in dark mode */
+  background-color: #1f2937 !important; /* Dark background */
+  border-color: #4b5563; /* Darker border */
+}
+
+.dark .select-content {
+  background-color: #1f2937 !important; /* Dark dropdown background */
+  border-color: #374151; /* Darker border for dropdown */
+}
+
+.dark .select-item {
+  color: white !important; /* White text for dropdown items */
+}
+
+.dark .select-item:hover {
+  background-color: #374151 !important; /* Darker hover background */
+  color: white !important; /* Ensure text remains visible */
+}

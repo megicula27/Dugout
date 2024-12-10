@@ -10,7 +10,7 @@
 }
 
 body {
-  background: #232b2b;
+  background: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -254,4 +254,119 @@ footer i {
 footer a {
   color: #3c97bf;
   text-decoration: none;
+}
+
+input {
+  background-color: #eee;
+  border: 1px solid #ddd; /* Added subtle border */
+  border-radius: 4px; /* Added rounded corners */
+  padding: 12px 15px;
+  margin: 8px 0;
+  width: 100%;
+  color: #2d3436; /* Darker text color for better contrast */
+  font-size: 14px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #ff4b2b; /* Match your theme color */
+  background-color: #fff; /* White background when focused */
+  box-shadow: 0 0 5px rgba(255, 75, 43, 0.2); /* Subtle glow effect */
+}
+
+input::placeholder {
+  color: #95a5a6; /* Lighter color for placeholder text */
+  opacity: 1; /* Ensure placeholder is visible */
+}
+.social-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 20px 0;
+}
+
+.social {
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 5px;
+  height: 40px;
+  width: 40px;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+}
+
+.social svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Google Button */
+.social.google-btn {
+  border: 2px solid #db4437;
+}
+
+.social.google-btn svg {
+  color: #db4437;
+}
+
+.social.google-btn:hover {
+  background-color: #db4437;
+}
+
+.social.google-btn:hover svg {
+  color: white;
+}
+
+/* Facebook Button */
+.social.facebook-btn {
+  border: 2px solid #4267b2;
+}
+
+.social.facebook-btn svg {
+  color: #4267b2;
+}
+
+.social.facebook-btn:hover {
+  background-color: #4267b2;
+}
+
+.social.facebook-btn:hover svg {
+  color: white;
+}
+
+/* LinkedIn Button */
+.social.linkedin-btn {
+  border: 2px solid #0077b5;
+}
+
+.social.linkedin-btn svg {
+  color: #0077b5;
+}
+
+.social.linkedin-btn:hover {
+  background-color: #0077b5;
+}
+
+.social.linkedin-btn:hover svg {
+  color: white;
+}
+
+/* Error Message */
+.error-message {
+  color: #ff4b2b;
+  margin: 10px 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Disabled state */
+.social:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

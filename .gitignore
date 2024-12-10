@@ -19,6 +19,7 @@
 
 # production
 /build
+/src/utils/RabbitMQ
 
 # misc
 .DS_Store

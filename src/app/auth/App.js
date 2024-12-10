@@ -15,7 +15,6 @@ const App = () => {
 
   return (
     <div className="App">
-      <h2>Sign in/up Form</h2>
       <div
         className={`container ${type === "signUp" ? "right-panel-active" : ""}`}
       >

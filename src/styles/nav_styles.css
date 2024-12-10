@@ -1,0 +1,49 @@
+/* Basic Styles for the Navbar */
+.navbar {
+  background-color: #222;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.navbar .logo {
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+}
+
+.menu-links {
+  display: flex;
+  gap: 15px;
+}
+
+.menu-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.menu-link:hover {
+  background-color: #444;
+}
+
+.menu-link .icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.menu-link span {
+  font-size: 16px;
+}
+
+.menu-link:hover span {
+  font-weight: bold;
+}

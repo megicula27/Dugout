@@ -1,0 +1,84 @@
+[glitch] {
+  display: inline-block;
+  position: relative;
+}
+[glitch]:after {
+  --slice-0: inset(50% 0 50% 0%);
+  --slice-1: inset(0 0 50% 0);
+  --slice-2: inset(0 0 0 0);
+  --slice-3: inset(50% 0 0 0);
+  content: attr(glitch);
+  /*     change to whatever color, default green */
+  color: #52fe6f;
+  visibility: visible;
+  position: absolute;
+  display: block;
+  /*     how big the text needs to scale compared to its original size */
+  transform: scale(1.25);
+  -webkit-clip-path: var(--slice-0);
+  clip-path: var(--slice-0);
+  top: 0;
+  animation: glitchback 0.1s reverse;
+  animation-timing-function: step-end;
+}
+[glitch]:hover {
+  visibility: hidden;
+  transition: visibility 0.1s;
+}
+[glitch]:hover:after {
+  --slice-2: inset(0% 0% 0 0);
+  -webkit-clip-path: var(--slice-2);
+  clip-path: var(--slice-2);
+  animation: glitch 0.1s;
+  animation-timing-function: step-end;
+}
+@keyframes glitch {
+  0% {
+    -webkit-clip-path: var(--slice-0);
+    clip-path: var(--slice-0);
+  }
+  10% {
+    -webkit-clip-path: var(--slice-1);
+    clip-path: var(--slice-1);
+  }
+  to {
+    -webkit-clip-path: var(--slice-2);
+    clip-path: var(--slice-2);
+  }
+}
+@keyframes glitchback {
+  0% {
+    -webkit-clip-path: var(--slice-0);
+    clip-path: var(--slice-0);
+  }
+  10% {
+    -webkit-clip-path: var(--slice-3);
+    clip-path: var(--slice-3);
+  }
+  to {
+    -webkit-clip-path: var(--slice-2);
+    clip-path: var(--slice-2);
+  }
+}
+
+/* ignore, just centering the text */
+
+h1 {
+  text-align: center;
+}
+
+/* font goes hard */
+@font-face {
+  font-family: "PexicoMicro-Regular";
+  src: url("https://db.onlinewebfonts.com/t/852be80a3188170a0c4ebb2534efb54d.eot");
+  src: url("https://db.onlinewebfonts.com/t/852be80a3188170a0c4ebb2534efb54d.eot?#iefix")
+      format("embedded-opentype"),
+    url("https://db.onlinewebfonts.com/t/852be80a3188170a0c4ebb2534efb54d.woff2")
+      format("woff2"),
+    url("https://db.onlinewebfonts.com/t/852be80a3188170a0c4ebb2534efb54d.woff")
+      format("woff"),
+    url("https://db.onlinewebfonts.com/t/852be80a3188170a0c4ebb2534efb54d.ttf")
+      format("truetype"),
+    url("https://db.onlinewebfonts.com/t/852be80a3188170a0c4ebb2534efb54d.svg#PexicoMicro-Regular")
+      format("svg");
+}
