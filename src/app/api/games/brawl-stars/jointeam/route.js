@@ -1,6 +1,6 @@
 // pages/api/games/[gameName]/jointeam.js
 import dbConnect from "@/lib/database/mongo";
-import TeamBrawl from "../../../../../models/Teams/TeamBrawl";
+import TeamBrawl from "@/models/Teams/TeamBrawl";
 import Teams from "@/models/Teams/Teams";
 import User from "@/models/users/User";
 import { NextResponse } from "next/server";

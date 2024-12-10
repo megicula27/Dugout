@@ -1,6 +1,6 @@
 import dbConnect from "@/lib/database/mongo";
 import User from "@/models/users/User";
-import TeamBrawl from "../../../../../models/Teams/TeamBrawl";
+import TeamBrawl from "@/models/Teams/TeamBrawl";
 import Teams from "@/models/Teams/Teams";
 import { NextResponse } from "next/server";
 
