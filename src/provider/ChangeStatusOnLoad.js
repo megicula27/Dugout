@@ -21,7 +21,7 @@ const ChangeStatusOnUnload = () => {
   useEffect(() => {
     const updateUserActiveStatus = async () => {
       if (session) {
-        // Update user's active status to true when the app loads and session is active
+        //TODO: Update user's active status to true when the app loads and session is active
         await axios.post("/api/auth/changeToOnline");
       }
     };
