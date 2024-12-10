@@ -1,6 +1,6 @@
 // Utility function for common population patterns
 import dbConnect from "@/lib/database/mongo";
-import TeamBrawl from "@/models/Teams/TeamBrawl";
+import TeamBrawl from "../../../../../models/Teams/TeamBrawl";
 import Teams from "@/models/Teams/Teams";
 import User from "@/models/users/User";
 import { generateTeamId } from "@/utils/IDGen/idGenerator";
