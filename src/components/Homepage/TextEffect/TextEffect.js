@@ -7,7 +7,7 @@ import "@/styles/TextEffect.css"; // Import your CSS file
 
 gsap.registerPlugin(ScrollTrigger);
 
-const textEffects = () => {
+const TextEffects = () => {
   useEffect(() => {
     const textElements = document.querySelectorAll(".text");
 
@@ -48,4 +48,4 @@ const textEffects = () => {
   );
 };
 
-export default textEffects;
+export default TextEffects;
