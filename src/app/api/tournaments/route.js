@@ -8,15 +8,6 @@ export const GET = withMetrics(async (req) => {
   try {
     await dbconnection();
     const token = await getToken({ req });
-    if (!token) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "User not authenticated",
-        },
-        { status: 401 }
-      );
-    }
 
     const teamId = token.teams ? token?.teams[0]?.team : null;
 
@@ -31,6 +22,15 @@ export const GET = withMetrics(async (req) => {
 
     // New parameter for active/inactive tournaments
     const activeFilter = url.searchParams.get("active") || true;
+    if (!token && joined === "true") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "User not authenticated",
+        },
+        { status: 401 }
+      );
+    }
 
     // Check for cached data in Redis
     const cacheKey = `tournaments:${game}:${sortBy}:${prize}:${joined}:${page}`;
